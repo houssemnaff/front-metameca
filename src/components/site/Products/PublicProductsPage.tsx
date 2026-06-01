@@ -793,42 +793,111 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
     FILTER DRAWER
   ───────────────────────────────────────────── */
   interface FilterDrawerProps {
-    open: boolean;
-    categories: string[];
-    activeCategory: string;
-    onCategory: (c: string) => void;
-    priceMin: string;
-    priceMax: string;
-    onPriceMin: (v: string) => void;
-    onPriceMax: (v: string) => void;
-    onReset: () => void;
-    hasActive: boolean;
-  }
+  open: boolean;
+  onClose: () => void;          // ← nouveau
+  categories: string[];
+  activeCategory: string;
+  onCategory: (c: string) => void;
+  priceMin: string;
+  priceMax: string;
+  onPriceMin: (v: string) => void;
+  onPriceMax: (v: string) => void;
+  onReset: () => void;
+  hasActive: boolean;
+}
+function FilterDrawer({
+  open, onClose, categories, activeCategory, onCategory,
+  priceMin, priceMax, onPriceMin, onPriceMax, onReset, hasActive,
+}: FilterDrawerProps) {
+  return (
+    <>
+      {/* Backdrop — clique dessus pour fermer */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed", inset: 0, zIndex: 90,
+          background: "rgba(17,16,8,0.28)",
+          backdropFilter: "blur(2px)",
+          WebkitBackdropFilter: "blur(2px)",
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+          transition: "opacity 0.32s ease",
+        }}
+      />
 
-  function FilterDrawer({
-    open, categories, activeCategory, onCategory,
-    priceMin, priceMax, onPriceMin, onPriceMax, onReset, hasActive,
-  }: FilterDrawerProps) {
-    if (!open) return null;
-    return (
+      {/* Panel latéral — glisse depuis la droite */}
       <div style={{
-        maxWidth: 1280, margin: "0 auto",
-        padding: "0 24px",
+        position: "fixed", top: 0, right: 0, bottom: 0,
+        width: "min(360px, 88vw)",
+        zIndex: 91,
+        background: T.cream,
+        borderLeft: `1px solid ${T.border}`,
+        boxShadow: open ? "-16px 0 56px rgba(0,0,0,0.07)" : "none",
+        transform: open ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.38s cubic-bezier(0.4,0,0.2,1), box-shadow 0.38s ease",
+        overflowY: "auto",
+        display: "flex", flexDirection: "column",
       }}>
+
+        {/* En-tête sticky */}
         <div style={{
-          display: "flex", flexWrap: "wrap", gap: 32,
-          padding: "24px 28px",
-          background: T.cream,
-          border: `1px solid ${T.border}`,
-          borderTop: "none",
-          marginBottom: 28,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "26px 28px 22px",
+          borderBottom: `1px solid ${T.border}`,
+          position: "sticky", top: 0, background: T.cream, zIndex: 1,
         }}>
-          {/* Categories */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <SlidersHorizontal size={15} color={T.inkMid} />
+            <h3 style={{ fontFamily: T.fontDisplay, fontSize: 22, fontWeight: 400, color: T.ink }}>
+              Filtres
+            </h3>
+            {hasActive && (
+              <span style={{
+                background: T.accent, color: "#fff",
+                fontFamily: T.fontUI, fontSize: 9, fontWeight: 500,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                padding: "3px 8px", borderRadius: 10,
+              }}>
+                actifs
+              </span>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              width: 34, height: 34, borderRadius: "50%",
+              border: `1px solid ${T.border}`,
+              background: "none", cursor: "pointer", color: T.inkMid,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.borderColor = T.borderHover;
+              (e.currentTarget as HTMLElement).style.color = T.ink;
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.borderColor = T.border;
+              (e.currentTarget as HTMLElement).style.color = T.inkMid;
+            }}
+            aria-label="Fermer les filtres"
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Corps */}
+        <div style={{ flex: 1, padding: "32px 28px", display: "flex", flexDirection: "column", gap: 36 }}>
+
+          {/* Catégories */}
           <div>
-            <p style={{ fontFamily: T.fontUI, fontSize: 10, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: T.inkLight, marginBottom: 12 }}>
+            <p style={{
+              fontFamily: T.fontUI, fontSize: 10, fontWeight: 500,
+              letterSpacing: "0.16em", textTransform: "uppercase",
+              color: T.inkLight, marginBottom: 14,
+            }}>
               Catégorie
             </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {categories.map(cat => {
                 const active = activeCategory === cat;
                 return (
@@ -836,12 +905,29 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
                     key={cat}
                     onClick={() => onCategory(cat)}
                     style={{
-                      fontFamily: T.fontUI, fontSize: 13, fontWeight: active ? 500 : 400,
+                      fontFamily: T.fontUI, fontSize: 14,
+                      fontWeight: active ? 500 : 400,
                       color: active ? T.accent : T.inkMid,
                       background: active ? T.accentSoft : "transparent",
-                      border: `1px solid ${active ? T.accent : T.border}`,
-                      padding: "6px 16px", cursor: "pointer",
+                      border: "none",
+                      borderLeft: `2px solid ${active ? T.accent : "transparent"}`,
+                      padding: "10px 14px",
+                      cursor: "pointer", textAlign: "left",
                       transition: "all 0.18s",
+                    }}
+                    onMouseEnter={e => {
+                      if (!active) {
+                        (e.currentTarget as HTMLElement).style.background = T.parchment;
+                        (e.currentTarget as HTMLElement).style.color = T.ink;
+                        (e.currentTarget as HTMLElement).style.borderLeftColor = T.borderHover;
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!active) {
+                        (e.currentTarget as HTMLElement).style.background = "transparent";
+                        (e.currentTarget as HTMLElement).style.color = T.inkMid;
+                        (e.currentTarget as HTMLElement).style.borderLeftColor = "transparent";
+                      }
                     }}
                   >
                     {cat}
@@ -851,56 +937,77 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
             </div>
           </div>
 
-          {/* Divider */}
-          <div style={{ width: 1, background: T.border, alignSelf: "stretch" }} />
+          <div style={{ height: 1, background: T.border }} />
 
-          {/* Price */}
+          {/* Prix */}
           <div>
-            <p style={{ fontFamily: T.fontUI, fontSize: 10, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: T.inkLight, marginBottom: 12 }}>
+            <p style={{
+              fontFamily: T.fontUI, fontSize: 10, fontWeight: 500,
+              letterSpacing: "0.16em", textTransform: "uppercase",
+              color: T.inkLight, marginBottom: 14,
+            }}>
               Prix (DT)
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              {[["Min", priceMin, onPriceMin], ["Max", priceMax, onPriceMax]].map(([label, val, setter]) => (
-                <input
-                  key={label as string}
-                  type="number"
-                  placeholder={label as string}
-                  value={val as string}
-                  onChange={e => (setter as (v: string) => void)(e.target.value)}
-                  style={{
-                    fontFamily: T.fontUI, fontSize: 13, color: T.ink,
-                    width: 90, background: "#fff",
-                    border: `1px solid ${T.border}`,
-                    padding: "8px 10px", outline: "none",
-                    transition: "border-color 0.2s",
-                  }}
-                  onFocus={e => (e.currentTarget.style.borderColor = T.accent)}
-                  onBlur={e => (e.currentTarget.style.borderColor = T.border)}
-                />
+            <div style={{ display: "flex", gap: 12 }}>
+              {([ ["Min", priceMin, onPriceMin], ["Max", priceMax, onPriceMax] ] as const).map(([label, val, setter]) => (
+                <div key={label} style={{ flex: 1 }}>
+                  <label style={{
+                    fontFamily: T.fontUI, fontSize: 11,
+                    color: T.inkLight, display: "block", marginBottom: 6,
+                  }}>
+                    {label}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="—"
+                    value={val}
+                    onChange={e => setter(e.target.value)}
+                    style={{
+                      fontFamily: T.fontUI, fontSize: 14, color: T.ink,
+                      width: "100%", background: "#fff",
+                      border: `1px solid ${T.border}`,
+                      padding: "10px 12px", outline: "none",
+                      transition: "border-color 0.2s",
+                      boxSizing: "border-box",
+                    }}
+                    onFocus={e => (e.currentTarget.style.borderColor = T.accent)}
+                    onBlur={e => (e.currentTarget.style.borderColor = T.border)}
+                  />
+                </div>
               ))}
             </div>
           </div>
-
-          {hasActive && (
-            <>
-              <div style={{ width: 1, background: T.border, alignSelf: "stretch" }} />
-              <button
-                onClick={onReset}
-                style={{
-                  fontFamily: T.fontUI, fontSize: 12, color: T.accent,
-                  background: "none", border: "none", cursor: "pointer",
-                  textDecoration: "underline", textUnderlineOffset: 3,
-                  alignSelf: "center",
-                }}
-              >
-                Réinitialiser
-              </button>
-            </>
-          )}
         </div>
+
+        {/* Pied sticky — bouton reset */}
+        {hasActive && (
+          <div style={{
+            padding: "20px 28px",
+            borderTop: `1px solid ${T.border}`,
+            position: "sticky", bottom: 0, background: T.cream,
+          }}>
+            <button
+              onClick={onReset}
+              style={{
+                width: "100%",
+                fontFamily: T.fontUI, fontSize: 11, fontWeight: 500,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                color: T.accent, background: "none",
+                border: `1px solid ${T.accent}`,
+                padding: "13px 24px", cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = T.accentSoft}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "none"}
+            >
+              Réinitialiser les filtres
+            </button>
+          </div>
+        )}
       </div>
-    );
-  }
+    </>
+  );
+}
 
   /* ─────────────────────────────────────────────
     ACTIVE FILTER CHIPS
@@ -1129,13 +1236,19 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
 
     const totalPages = Math.ceil(filtered.length / PER_PAGE);
     const paginated  = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-
+const collectionRef = useRef<HTMLDivElement>(null);
     const hasActiveFilters   = activeCategory !== "Tous" || !!search.trim() || !!priceMin || !!priceMax;
     const activeFilterCount  = [activeCategory !== "Tous", !!search.trim(), !!(priceMin || priceMax)].filter(Boolean).length;
     const resetFilters = () => {
       setActiveCategory("Tous"); setSearch(""); setPriceMin(""); setPriceMax(""); setSort("default");
     };
-    const goPage = (n: number) => { setPage(n); window.scrollTo({ top: 0, behavior: "smooth" }); };
+const goPage = (n: number) => {
+  setPage(n);
+  if (collectionRef.current) {
+    const top = collectionRef.current.getBoundingClientRect().top + window.scrollY - 130;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }
+};
 
     // Whether we're in a filtered/search state (show grid, hide collections)
     const isFiltered = hasActiveFilters || sort !== "default";
@@ -1160,18 +1273,23 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
         />
 
         {/* ── FILTER DRAWER ── */}
-        <FilterDrawer
-          open={filtersOpen}
-          categories={categories}
-          activeCategory={activeCategory} onCategory={setActiveCategory}
-          priceMin={priceMin} priceMax={priceMax}
-          onPriceMin={setPriceMin} onPriceMax={setPriceMax}
-          onReset={resetFilters}
-          hasActive={hasActiveFilters}
-        />
+       {/* ── FILTER DRAWER (portal fixe, hors flux) ── */}
+<FilterDrawer
+  open={filtersOpen}
+  onClose={() => setFiltersOpen(false)}   // ← nouveau
+  categories={categories}
+  activeCategory={activeCategory} onCategory={setActiveCategory}
+  priceMin={priceMin} priceMax={priceMax}
+  onPriceMin={setPriceMin} onPriceMax={setPriceMax}
+  onReset={resetFilters}
+  hasActive={hasActiveFilters}
+/>
 
         {/* ── MAIN CONTENT ── */}
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px 96px" }}>
+     <div
+  ref={collectionRef}  
+  style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px 96px" }}
+>
 
           {/* Active filter chips */}
           {hasActiveFilters && (
@@ -1200,8 +1318,10 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
                 ? <EmptyState onReset={resetFilters} />
                 : (
                   <>
-                    <EditorialGrid products={paginated} />
-                    <Pagination page={page} total={totalPages} onChange={goPage} />
+                   <div ref={collectionRef}>
+  <EditorialGrid products={paginated} />
+  <Pagination page={page} total={totalPages} onChange={goPage} />
+</div>
                   </>
                 )
               }
@@ -1251,9 +1371,11 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
               })}
 
               {/* All products grid */}
-              <SectionDivider label="Toute la collection" />
-              <EditorialGrid products={paginated} />
-              <Pagination page={page} total={totalPages} onChange={goPage} />
+             <div ref={collectionRef}>
+  <SectionDivider label="Toute la collection" />
+  <EditorialGrid products={paginated} />
+  <Pagination page={page} total={totalPages} onChange={goPage} />
+</div>
             </>
           )}
         </div>
