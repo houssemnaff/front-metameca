@@ -1,15 +1,22 @@
 import type { ReactNode } from "react";
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { api } from "../utils/api";
 
-/* ─── Types ──────────────────────────────────────────────────────────────── */
+/* ─── Types ───────────────────────────────────────── */
 
 export type UserRole = "superadmin" | "client";
+
 export type AuthUser = {
   id: string;
   name: string;
   email: string;
-  role: "superadmin" | "client";
+  role: UserRole;
 };
 
 export type LoginResponse = {
@@ -18,116 +25,119 @@ export type LoginResponse = {
 };
 
 interface AuthContextValue {
-  user:            AuthUser | null;
-  loading:         boolean;
+  user: AuthUser | null;
+  loading: boolean;
   isAuthenticated: boolean;
-  login:           (email: string, password: string) => Promise<AuthUser>;
-  logout:          () => void;
-    register:        (data: RegisterData) => Promise<AuthUser>;  // ← add
-
-
+  login: (email: string, password: string) => Promise<AuthUser>;
+  logout: () => void;
+  register: (data: RegisterData) => Promise<AuthUser>;
+  refreshUser: () => Promise<void>;
 }
+
 export type RegisterData = {
   firstName: string;
-  lastName:  string;
-  email:     string;
-  password:  string;
-  company?:  string;
-  phone?:    string;
+  lastName: string;
+  email: string;
+  password: string;
+  company?: string;
+  phone?: string;
 };
-/* ─── Storage keys ───────────────────────────────────────────────────────── */
+
+/* ─── Storage ───────────────────────────────────────── */
 
 const TOKEN_KEY = "mm_token";
-const USER_KEY  = "mm_user";
 
-/* ─── Context ────────────────────────────────────────────────────────────── */
+/* ─── Context ───────────────────────────────────────── */
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-function getInitialUser(): AuthUser | null {
-  try {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  } catch {
-    return null;
-  }
-}
+
+/* ─── Provider ───────────────────────────────────────── */
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(getInitialUser); // ← lazy init
-  const [loading, setLoading] = useState(false); 
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  /* Rehydrate session on mount */
- 
+  /* ─── GET USER FROM BACKEND ─── */
+  const refreshUser = useCallback(async () => {
+    const token = localStorage.getItem(TOKEN_KEY);
 
-  /* ── login ────────────────────────────────────────────────────────────── */
- const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
-  const res = await api.login(email, password) as LoginResponse;
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
+    try {
+      let me: AuthUser;
 
-  if (!res.user) {
-    throw new Error("Invalid login response");
-  }
+      try {
+        me = await api.me(); // GET /auth/me
+      } catch {
+        me = await api.meUser(); // GET /clients/me
+      }
 
-  const authUser: AuthUser = {
-    id:    res.user.id,
-    name:  res.user.name,
-    email: res.user.email,
-    role:  res.user.role,
-  };
+      setUser(me);
+    } catch (err) {
+      console.error("Failed to fetch user:", err);
+      localStorage.removeItem(TOKEN_KEY);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  localStorage.setItem(TOKEN_KEY, res.token);
-  localStorage.setItem(USER_KEY, JSON.stringify(authUser));
-  setUser(authUser);
+  /* ─── INIT APP ─── */
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
-  return authUser;
-}, []);
+  /* ─── LOGIN ─── */
+  const login = useCallback(async (email: string, password: string) => {
+    const res = (await api.login(email, password)) as LoginResponse;
 
-const register = useCallback(async (data: RegisterData): Promise<AuthUser> => {
-  const res = await api.register(data) as LoginResponse;
+    localStorage.setItem(TOKEN_KEY, res.token);
+    setUser(res.user);
 
-  if (!res.user) throw new Error("Invalid register response");
+    return res.user;
+  }, []);
 
-  const authUser: AuthUser = {
-    id:    res.user.id,
-    name:  res.user.name,
-    email: res.user.email,
-    role:  res.user.role,
-  };
+  /* ─── REGISTER ─── */
+  const register = useCallback(async (data: RegisterData) => {
+    const res = (await api.register(data)) as LoginResponse;
 
-  localStorage.setItem(TOKEN_KEY, res.token);
-  localStorage.setItem(USER_KEY, JSON.stringify(authUser));
-  setUser(authUser);
+    localStorage.setItem(TOKEN_KEY, res.token);
+    setUser(res.user);
 
-  return authUser;
-}, []);
+    return res.user;
+  }, []);
 
-
-
-
-  /* ── logout ───────────────────────────────────────────────────────────── */
+  /* ─── LOGOUT ─── */
   const logout = useCallback(() => {
-    clearSession();
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
   }, []);
 
   return (
-<AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, logout, register }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        register,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-
-/* ─── Hook ───────────────────────────────────────────────────────────────── */
+/* ─── Hook ───────────────────────────────────────── */
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within <AuthProvider>.");
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
-}
-
-/* ─── Internal helper ────────────────────────────────────────────────────── */
-
-function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
 }

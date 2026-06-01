@@ -1,17 +1,34 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
+type LoginLocationState = {
+  email?: string;
+  password?: string;
+};
+
 export default function LoginPage() {
+  const location = useLocation();
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
   const [focused,  setFocused]  = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [mounted,  setMounted]  = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { login } = useAuth();
   const navigate  = useNavigate();
+
+  useEffect(() => {
+    const state = location.state as LoginLocationState | null;
+    if (!state) return;
+
+    if (state.email) setEmail(state.email);
+    if (state.password) setPassword(state.password);
+
+    window.history.replaceState({}, document.title);
+  }, [location.state]);
 
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 
@@ -87,194 +104,87 @@ export default function LoginPage() {
   }
 };
 
-  /* ─── styles ─────────────────────────────────────────────────────────── */
-  const s: Record<string, React.CSSProperties> = {
-    page: {
-      minHeight: "100vh",
-      background: "#ffffff",
-      display: "flex",
-      position: "relative",
-      overflow: "hidden",
-      fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
-    },
-    canvas: { position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 },
-    glow1:  { position: "absolute", top: "-20%", left: "-10%", width: "60%", height: "60%", borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 },
-    glow2:  { position: "absolute", bottom: "-20%", right: "-10%", width: "50%", height: "50%", borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 },
-
-    left: { flex: "1 1 55%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "60px 64px", position: "relative", zIndex: 1 },
-    right: { flex: "0 0 45%", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 48px", position: "relative", zIndex: 1, borderLeft: "1px solid rgba(37,99,235,0.12)", backdropFilter: "blur(2px)" },
-
-    tagline: {
-      display: "inline-flex", alignItems: "center", gap: 8,
-      background: "rgba(37,99,235,0.08)", border: "1px solid rgba(37,99,235,0.22)",
-      borderRadius: 6, padding: "5px 12px", fontSize: 11, fontWeight: 600,
-      color: "#2563eb", letterSpacing: 2, textTransform: "uppercase" as const, marginBottom: 32,
-      opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(10px)",
-      transition: "opacity 0.6s ease, transform 0.6s ease",
-    },
-    tagDot: { width: 6, height: 6, borderRadius: "50%", background: "#2563eb", boxShadow: "0 0 6px #2563eb" },
-
-    brandName: {
-      fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 800, color: "#0a0a0f",
-      lineHeight: 1.1, letterSpacing: "-1px", marginBottom: 8,
-      opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(16px)",
-      transition: "opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s",
-    },
-    brandAccent: { background: "linear-gradient(90deg, #1d4ed8, #2563eb, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
-    brandSub: {
-      fontSize: "clamp(13px, 1.4vw, 16px)", color: "#6b7280", fontWeight: 400,
-      letterSpacing: 3, textTransform: "uppercase" as const, marginBottom: 48,
-      opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(16px)",
-      transition: "opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s",
-    },
-
-    statsRow: {
-      display: "flex", gap: 32, marginBottom: 56,
-      opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(16px)",
-      transition: "opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s",
-    },
-    statItem:  { display: "flex", flexDirection: "column", gap: 4 },
-    statNum:   { fontSize: 28, fontWeight: 800, color: "#2563eb", lineHeight: 1, fontVariantNumeric: "tabular-nums" },
-    statLabel: { fontSize: 11, color: "#9ca3af", textTransform: "uppercase" as const, letterSpacing: 1.5 },
-
-    badge: {
-      display: "flex", alignItems: "center", gap: 12, padding: "14px 20px",
-      background: "rgba(37,99,235,0.05)", border: "1px solid rgba(37,99,235,0.14)",
-      borderRadius: 12, maxWidth: 340,
-      opacity: mounted ? 1 : 0, transition: "opacity 0.7s ease 0.4s",
-    },
-    badgeIcon:       { width: 36, height: 36, borderRadius: 8, background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    badgeText:       { fontSize: 13, color: "#6b7280", lineHeight: 1.5 },
-    badgeTextStrong: { color: "#374151", fontWeight: 600, display: "block", marginBottom: 2 },
-
-    panel: {
-      width: "100%", maxWidth: 400,
-      opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0) scale(1)" : "translateY(20px) scale(0.98)",
-      transition: "opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s",
-    },
-    panelHeader:  { marginBottom: 32 },
-    panelEyebrow: { fontSize: 11, color: "#2563eb", fontWeight: 600, letterSpacing: 2.5, textTransform: "uppercase" as const, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 },
-    eyebrowLine:  { flex: 1, height: 1, background: "linear-gradient(90deg, rgba(37,99,235,0.5), transparent)" },
-    panelTitle:   { fontSize: 26, fontWeight: 700, color: "#0a0a0f", marginBottom: 6, letterSpacing: "-0.5px" },
-    panelDesc:    { fontSize: 13.5, color: "#9ca3af" },
-
-    hudBox: {
-      position: "relative", padding: "32px",
-      background: "rgba(255,255,255,0.02)", border: "1px solid rgba(37,99,235,0.16)",
-      borderRadius: 16, boxShadow: "0 0 40px rgba(37,99,235,0.05), inset 0 1px 0 rgba(255,255,255,0.04)",
-    },
-    cornerTL: { position: "absolute", top: -1, left: -1,   width: 18, height: 18, borderTop:    "2px solid #2563eb", borderLeft:  "2px solid #2563eb", borderRadius: "4px 0 0 0" },
-    cornerTR: { position: "absolute", top: -1, right: -1,  width: 18, height: 18, borderTop:    "2px solid #2563eb", borderRight: "2px solid #2563eb", borderRadius: "0 4px 0 0" },
-    cornerBL: { position: "absolute", bottom: -1, left: -1, width: 18, height: 18, borderBottom: "2px solid #2563eb", borderLeft:  "2px solid #2563eb", borderRadius: "0 0 0 4px" },
-    cornerBR: { position: "absolute", bottom: -1, right: -1,width: 18, height: 18, borderBottom: "2px solid #2563eb", borderRight: "2px solid #2563eb", borderRadius: "0 0 4px 0" },
-
-    form:    { display: "flex", flexDirection: "column", gap: 18 },
-    field:   { display: "flex", flexDirection: "column", gap: 7 },
-    label:   { fontSize: 11.5, color: "#6b7280", fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" as const },
-    divider: { height: 1, background: "rgba(37,99,235,0.07)", margin: "2px 0" },
-
-    error: {
-      display: "flex", alignItems: "center", gap: 8,
-      background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.22)",
-      color: "#dc2626", padding: "10px 14px", borderRadius: 10, fontSize: 13, marginBottom: 4,
-    },
-    registerRow: { marginTop: 20, textAlign: "center" as const, fontSize: 13, color: "#9ca3af" },
-    footer: { marginTop: 22, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 11, color: "#9ca3af" },
-    footerDot: { width: 3, height: 3, borderRadius: "50%", background: "rgba(37,99,235,0.5)" },
-  };
-
-  const inputStyle = (field: string): React.CSSProperties => ({
-    background:  focused === field ? "rgba(37,99,235,0.05)" : "rgba(249,250,251,1)",
-    border:      `1px solid ${focused === field ? "rgba(37,99,235,0.45)" : "rgba(209,213,219,1)"}`,
-    borderRadius: 10,
-    padding:     "13px 16px",
-    color:       "#111827",
-    fontSize:    14,
-    outline:     "none",
-    transition:  "border-color .2s, background .2s, box-shadow .2s",
-    boxShadow:   focused === field ? "0 0 0 3px rgba(37,99,235,0.07)" : "none",
-    fontFamily:  "inherit",
-    width:       "100%",
-    boxSizing:   "border-box" as const,
-  });
+  /* Tailwind classes replace inline styles. Use `mounted` and `focused` for minor dynamic states. */
+  const pageClass = "min-h-screen bg-white relative overflow-hidden font-sans flex";
+  const leftClass = `hidden md:flex flex-1 flex-col justify-center px-16 py-20 relative z-10 gap-8`;
+  const rightClass = `flex-1 md:flex-[0_0_45%] flex items-center justify-center p-10 relative z-10 border-l border-blue-100 bg-white/60`;
+  const taglineClass = `inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-md px-3 py-1 text-xs font-semibold text-blue-600 uppercase transition-all ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`;
+  const brandNameClass = `text-[clamp(36px,4vw,56px)] font-extrabold leading-tight ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`;
+  const brandAccentClass = `bg-gradient-to-r from-blue-700 via-blue-600 to-blue-400 bg-clip-text text-transparent`;
+  const brandSubClass = `uppercase text-sm tracking-widest text-gray-500 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`;
+  const statsRowClass = `flex gap-8 mb-14 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`;
+  const badgeClass = `flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg max-w-[20rem]`;
+  const panelClass = `w-full max-w-md ${mounted ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-6 scale-95"}`;
+  const formClass = `flex flex-col gap-4`;
+  const fieldClass = `flex flex-col gap-2`;
+  const labelClass = `text-xs font-semibold text-gray-500 uppercase tracking-wider`;
+  const dividerClass = `h-px bg-blue-50 my-1`;
+  const errorClass = `flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-md text-sm`;
+  const registerRowClass = `mt-4 text-center text-sm text-gray-500`;
+  const footerClass = `mt-6 flex items-center justify-center gap-3 text-sm text-gray-400`;
+  const inputBase = `rounded-lg px-4 py-3 text-gray-900 text-sm w-full transition-shadow transition-colors outline-none`;
+  const inputFocused = `ring-2 ring-blue-100 bg-blue-50 border-blue-200`;
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-        @keyframes btnPulse {
-          0%,100% { box-shadow: 0 4px 24px rgba(37,99,235,0.32); }
-          50%      { box-shadow: 0 4px 40px rgba(37,99,235,0.52); }
-        }
+        @keyframes btnPulse { 0%,100%{ box-shadow: 0 8px 30px rgba(37,99,235,0.18)} 50%{ box-shadow: 0 8px 50px rgba(37,99,235,0.26)} }
         @keyframes spinSlow { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) {
-          .mm-left  { display: none !important; }
-          .mm-right { flex: 1 1 100% !important; border-left: none !important; padding: 32px 24px !important; }
-        }
       `}</style>
 
-      <div style={s.page}>
-        <canvas ref={canvasRef} style={s.canvas} />
-        <div style={s.glow1} />
-        <div style={s.glow2} />
+      <div className={pageClass}>
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
+        <div className="absolute -top-20 -left-10 w-2/3 h-2/3 rounded-full bg-gradient-radial from-blue-100/30 to-transparent pointer-events-none" />
+        <div className="absolute -bottom-20 -right-10 w-1/2 h-1/2 rounded-full bg-gradient-radial from-indigo-100/20 to-transparent pointer-events-none" />
 
-        {/* ── LEFT — brand ── */}
-        <div className="mm-left" style={s.left}>
-          <div style={s.tagline}>
-            <span style={s.tagDot} />
+        <div className={leftClass + " mm-left"}>
+          <div className={taglineClass}>
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shadow-md" />
             Système de gestion
           </div>
-          <div style={s.brandName}>
+          <div className={brandNameClass}>
             <span>Meta </span>
-            <span style={s.brandAccent}>Meca</span>
+            <span className={brandAccentClass}>Meca</span>
           </div>
-          <div style={s.brandSub}>Industries · Est. 2015</div>
+          <div className={brandSubClass}>Industries · Est. 2015</div>
 
-          <div style={s.statsRow}>
-            {[
-              { num: "12+", label: "Années d'exp." },
-              { num: "340", label: "Projets livrés" },
-              { num: "98%", label: "Satisfaction" },
-            ].map((st) => (
-              <div key={st.label} style={s.statItem}>
-                <span style={s.statNum}>{st.num}</span>
-                <span style={s.statLabel}>{st.label}</span>
+          <div className={statsRowClass}>
+            {[{ num: "12+", label: "Années d'exp." }, { num: "340", label: "Projets livrés" }, { num: "98%", label: "Satisfaction" }].map((st) => (
+              <div key={st.label} className="flex flex-col gap-1">
+                <span className="text-2xl font-extrabold text-blue-600 tabular-nums">{st.num}</span>
+                <span className="text-xs text-gray-400 uppercase tracking-widest">{st.label}</span>
               </div>
             ))}
           </div>
 
-          <div style={s.badge}>
-            <div style={s.badgeIcon}>
+          <div className={badgeClass}>
+            <div className="w-9 h-9 rounded-md bg-blue-50 border border-blue-100 flex items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
               </svg>
             </div>
-            <div style={s.badgeText}>
-              <span style={s.badgeTextStrong}>Panneau de contrôle industriel</span>
+            <div className="text-sm text-gray-500">
+              <span className="block font-semibold text-gray-700">Panneau de contrôle industriel</span>
               Accès réservé au personnel autorisé
             </div>
           </div>
         </div>
 
-        {/* ── RIGHT — login form ── */}
-        <div className="mm-right" style={s.right}>
-          <div style={s.panel}>
-
-            <div style={s.panelHeader}>
-              <div style={s.panelEyebrow}>
-                <span style={s.eyebrowLine} />
+        <div className={rightClass + " mm-right"}>
+          <div className={panelClass}>
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex-1 h-px bg-linear-to-r from-blue-300/60 to-transparent" />
               </div>
-              <div style={s.panelTitle}>Connexion</div>
-              <div style={s.panelDesc}>Identifiez-vous pour accéder à votre espace</div>
+              <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
+              <p className="text-sm text-gray-500">Identifiez-vous pour accéder à votre espace</p>
             </div>
 
-            <div style={s.hudBox}>
-              <div style={s.cornerTL} /><div style={s.cornerTR} />
-              <div style={s.cornerBL} /><div style={s.cornerBR} />
-
+            <div className="relative p-6 bg-white border border-blue-50 rounded-2xl shadow-sm">
               {error && (
-                <div style={s.error}>
+                <div className={errorClass}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                   </svg>
@@ -282,58 +192,66 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} style={s.form}>
-                <div style={s.field}>
-                  <label style={s.label}>Adresse email</label>
+              <form onSubmit={handleSubmit} className={formClass}>
+                <div className={fieldClass}>
+                  <label className={labelClass}>Adresse email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocused("email")}
                     onBlur={() => setFocused("")}
-                    style={inputStyle("email")}
+                    className={`${inputBase} ${focused === "email" ? inputFocused : "bg-gray-50 border border-gray-200"}`}
                     placeholder="votre@email.com"
                     autoComplete="email"
                     required
                   />
                 </div>
 
-                <div style={s.divider} />
+                <div className={dividerClass} />
 
-                <div style={s.field}>
-                  <label style={s.label}>Mot de passe</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setFocused("password")}
-                    onBlur={() => setFocused("")}
-                    style={inputStyle("password")}
-                    placeholder="••••••••••"
-                    autoComplete="current-password"
-                    required
-                  />
+                <div className={fieldClass}>
+                  <label className={labelClass}>Mot de passe</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onFocus={() => setFocused("password")}
+                        onBlur={() => setFocused("")}
+                        className={`${inputBase} pr-12 ${focused === "password" ? inputFocused : "bg-gray-50 border border-gray-200"}`}
+                        placeholder="••••••••••"
+                        autoComplete="current-password"
+                        required
+                      />
+
+                      <button
+                        type="button"
+                        aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                        onClick={() => setShowPassword((s) => !s)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5 0-9.27-3-11-7a11.07 11.07 0 0 1 2.36-4.11" />
+                            <path d="M1 1l22 22" />
+                            <path d="M9.88 9.88A3 3 0 0 0 14.12 14.12" />
+                          </svg>
+                        ) : (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{
-                    marginTop: 8,
-                    padding: "14px",
-                    background: loading
-                      ? "rgba(37,99,235,0.35)"
-                      : "linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%)",
-                    border: "none", borderRadius: 10, color: "#ffffff",
-                    fontSize: 14, fontWeight: 700, fontFamily: "inherit",
-                    cursor: loading ? "not-allowed" : "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    letterSpacing: 0.5, transition: "opacity .2s, transform .15s",
-                    animation: loading ? "none" : "btnPulse 2.5s ease-in-out infinite",
-                    transform: "translateY(0)",
-                  }}
-                  onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
+                  className={`mt-2 w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white rounded-lg ${loading ? "bg-blue-400 cursor-not-allowed" : "bg-linear-to-r from-blue-700 via-blue-600 to-blue-500 hover:opacity-90"}`}
+                  style={{ animation: loading ? "none" : "btnPulse 2.5s ease-in-out infinite" }}
                 >
                   {loading ? (
                     <>
@@ -353,19 +271,17 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              <div style={s.registerRow}>
-                Pas encore de compte ?{" "}
-                <a href="/register" style={{ color: "#2563eb", fontWeight: 600, textDecoration: "none" }}>
-                  Créer un compte client
-                </a>
+              <div className={registerRowClass}>
+                Pas encore de compte ? {" "}
+                <Link to="/register" className="text-blue-600 font-semibold">Créer un compte client</Link>
               </div>
             </div>
 
-            <div style={s.footer}>
+            <div className={footerClass}>
               <span>Meta Meca Industries</span>
-              <span style={s.footerDot} />
+              <span className="w-1 h-1 rounded-full bg-blue-200" />
               <span>Accès sécurisé</span>
-              <span style={s.footerDot} />
+              <span className="w-1 h-1 rounded-full bg-blue-200" />
               <span>v2.0</span>
             </div>
           </div>

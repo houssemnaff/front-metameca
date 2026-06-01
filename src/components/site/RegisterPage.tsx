@@ -89,8 +89,11 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await register({ firstName, lastName, company, phone, email, password, role: "client" });
-      navigate("/dashboard");
+      await register({ firstName, lastName, company, phone, email, password });
+      navigate("/login", {
+        replace: true,
+        state: { email, password },
+      });
     } catch (err) {
       setError((err as Error).message);
     } finally {

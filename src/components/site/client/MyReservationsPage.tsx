@@ -10,7 +10,7 @@ type ProductImage = { filename: string; url: string };
 type Product = {
   _id: string;
   name: string;
-  price: number;
+  price: number | string;
   category?: string;
   family?: string;
   images?: ProductImage[];
@@ -324,7 +324,7 @@ const ReservationCard = memo(({
 /* ─── Main page ─────────────────────────────────────────────────────────── */
 
 export default function MyReservationsPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [reservations, setReservations] = useState<EnrichedReservation[]>([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState("");
