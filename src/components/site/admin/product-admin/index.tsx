@@ -9,19 +9,25 @@ import { defaultCategories, emptyForm, generateRef } from "./constants";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 import { ProductFormModal } from "./components/ProductFormModal";
 
-
 export default function AdminProductsPage() {
-  const [products, setProducts]         = useState<Product[]>([]);
-  const [search, setSearch]             = useState<string>("");
-  const [showModal, setShowModal]       = useState<boolean>(false);
-  const [form, setForm]                 = useState<ProductForm>(emptyForm);
-  const [editId, setEditId]             = useState<string | null>(null);
-  const [loading, setLoading]           = useState<boolean>(false);
-  const [delConfirm, setDelConfirm]     = useState<string | null>(null);
+  const [products, setProducts]           = useState<Product[]>([]);
+  const [search, setSearch]               = useState<string>("");
+  const [showModal, setShowModal]         = useState<boolean>(false);
+  const [form, setForm]                   = useState<ProductForm>(emptyForm);
+  const [editId, setEditId]               = useState<string | null>(null);
+  const [loading, setLoading]             = useState<boolean>(false);
+  const [delConfirm, setDelConfirm]       = useState<string | null>(null);
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
-const [selectedCategory, setSelectedCategory] = useState<string>("all");
-const [stockFilter, setStockFilter] = useState<"all" | "out">("all");
-const categories = ["all", ...new Set(products.map(p => p.category))];
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [stockFilter, setStockFilter]     = useState<"all" | "out">("all");
+
+  // ── Catégories pour le filtre page ──
+  const categories = ["all", ...new Set(products.map(p => p.category).filter(Boolean))];
+
+  // ── Catégories pour le formulaire : tes vraies catégories + suggestions ──
+  const productCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+  const allCategories = [...new Set([...productCategories, ...defaultCategories])];
+
   /* ── Data ── */
   const load = async () => {
     const data = await api.getProducts(search ? { search } : {});
@@ -50,6 +56,7 @@ const categories = ["all", ...new Set(products.map(p => p.category))];
       images: p.images ?? [],
       imagesNew: [],
       isCustomCategory: !isDefault,
+      family: p.family ?? "",
     });
     setEditId(p._id);
     setShowModal(true);
@@ -80,14 +87,12 @@ const categories = ["all", ...new Set(products.map(p => p.category))];
   const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-     const fd = new FormData();
+    const fd = new FormData();
     try {
-         
       const finalReference =
         form.reference?.trim() ||
         (form.isCustomCategory ? "" : generateRef(form.category));
 
-     
       fd.append("name",        form.name);
       fd.append("reference",   finalReference);
       fd.append("description", form.description ?? "");
@@ -95,9 +100,11 @@ const categories = ["all", ...new Set(products.map(p => p.category))];
       fd.append("stock",       String(form.stock ?? ""));
       fd.append("category",    form.category ?? "");
       fd.append("status",      form.status);
+      fd.append("family",      form.family);
+
       form.imagesNew.forEach(file => fd.append("images", file));
 
-      const token = localStorage.getItem("admin_token");
+      const token = localStorage.getItem("mm_token");
       const url = editId
         ? `http://localhost:4000/api/products/${editId}`
         : `http://localhost:4000/api/products`;
@@ -139,12 +146,12 @@ const categories = ["all", ...new Set(products.map(p => p.category))];
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}>Produits</h1>
-         <p style={styles.sub}>
-  {products.filter(p =>
-    (selectedCategory === "all" || p.category === selectedCategory) &&
-    (stockFilter === "all" || p.stock === 0)
-  ).length} produit(s)
-</p>
+          <p style={styles.sub}>
+            {products.filter(p =>
+              (selectedCategory === "all" || p.category === selectedCategory) &&
+              (stockFilter === "all" || p.stock === 0)
+            ).length} produit(s)
+          </p>
         </div>
         <button style={styles.addBtn} onClick={openAdd}>
           <Plus size={16} /> Ajouter
@@ -166,54 +173,45 @@ const categories = ["all", ...new Set(products.map(p => p.category))];
           </button>
         )}
       </div>
-{/* Filters */}
-<div style={{ display: "flex", gap: 12, margin: "10px 0 20px" }}>
 
-  {/* CATEGORY */}
-  <select
-    value={selectedCategory}
-    onChange={(e) => setSelectedCategory(e.target.value)}
-    style={{ padding: 6, borderRadius: 6 }}
-  >
-    {categories.map((c) => (
-      <option key={c} value={c}>
-        {c}
-      </option>
-    ))}
-  </select>
+      {/* Filters */}
+      <div style={{ display: "flex", gap: 12, margin: "10px 0 20px" }}>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          style={{ padding: 6, borderRadius: 6 }}
+        >
+          {categories.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
 
-  {/* STOCK FILTER */}
-  <select
-    value={stockFilter}
-    onChange={(e) => setStockFilter(e.target.value as any)}
-    style={{ padding: 6, borderRadius: 6 }}
-  >
-    <option value="all">All stock</option>
-    <option value="out">Stock = 0</option>
-  </select>
+        <select
+          value={stockFilter}
+          onChange={(e) => setStockFilter(e.target.value as any)}
+          style={{ padding: 6, borderRadius: 6 }}
+        >
+          <option value="all">All stock</option>
+          <option value="out">Stock = 0</option>
+        </select>
+      </div>
 
-</div>
       {/* Product grid */}
       <div style={styles.grid}>
         {products
-  .filter((p) => {
-    const categoryMatch =
-      selectedCategory === "all" || p.category === selectedCategory;
-
-    const stockMatch =
-      stockFilter === "all" || p.stock === 0;
-
-    return categoryMatch && stockMatch;
-  })
-  .map((p) => (
-          <ProductCard
-            key={p._id}
-            product={p}
-            onClick={() => setDetailProduct(p)}
-            onEdit={() => openEdit(p)}
-            onDelete={() => setDelConfirm(p._id)}
-          />
-        ))}
+          .filter((p) =>
+            (selectedCategory === "all" || p.category === selectedCategory) &&
+            (stockFilter === "all" || p.stock === 0)
+          )
+          .map((p) => (
+            <ProductCard
+              key={p._id}
+              product={p}
+              onClick={() => setDetailProduct(p)}
+              onEdit={() => openEdit(p)}
+              onDelete={() => setDelConfirm(p._id)}
+            />
+          ))}
         {products.length === 0 && (
           <div style={styles.empty}>
             <Package size={40} color="var(--text3)" />
@@ -239,6 +237,7 @@ const categories = ["all", ...new Set(products.map(p => p.category))];
           form={form}
           loading={loading}
           selectValue={selectValue}
+          availableCategories={allCategories}
           onClose={closeModal}
           onSubmit={handleSave}
           onCategorySelect={handleCategorySelect}

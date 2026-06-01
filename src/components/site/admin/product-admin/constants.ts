@@ -1,23 +1,17 @@
 import type { ProductForm } from "./types";
 
 export const defaultCategories = [
-  "Meubles",
-  "Buffets",
-  "Meuble TV",
-  "Étagères",
-  "Chambres",
-  "Entrée",
-  "Décoration",
+  "Vitrine",
+  "Table basse",
+  "TV Stand",
+
 ];
 
 export const categoryPrefixes: Record<string, string> = {
-  "Meubles":    "MBL",
-  "Buffets":    "BUF",
-  "Meuble TV":  "TV",
-  "Étagères":   "ETG",
-  "Chambres":   "CHB",
-  "Entrée":     "ENT",
-  "Décoration": "DEC",
+  "Vitrine":    "VIT",
+  "Table basse":    "TB",
+  "TV Stand":  "TV",
+  
 };
 
 export const generateRef = (category?: string): string => {
@@ -35,7 +29,8 @@ export const emptyForm: ProductForm = {
   category: "",
   reference: "",
   status: "active",
+  isCustomCategory: false,
   images: [],
   imagesNew: [],
-  isCustomCategory: false,
+  family: "", // 👈 add this
 };

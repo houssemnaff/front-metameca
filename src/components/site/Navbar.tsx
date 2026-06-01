@@ -175,20 +175,7 @@ export function Navbar({
                 )}
               </div>
 
-              <button type="button" aria-label="Favoris" className={`group p-2.5 transition-colors duration-200 ${textColor} hover:opacity-60`}>
-                <Heart size={18} strokeWidth={1.4} />
-              </button>
-
-              <button type="button" aria-label="Panier" className={`relative group p-2.5 transition-colors duration-200 ${textColor} hover:opacity-60`}>
-                <ShoppingBag size={18} strokeWidth={1.4} />
-                {cartCount > 0 && (
-                  <span className={`absolute top-1.5 right-1.5 w-[16px] h-[16px] rounded-full flex items-center justify-center text-[9px] font-semibold leading-none transition-colors duration-300 ${
-                    isTransparent ? "bg-white text-[#1a1a1a]" : "bg-[#1a1a1a] text-white"
-                  }`}>
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+             
 
               <div className={`hidden lg:block w-px h-[18px] mx-3 ${dividerCol} transition-colors duration-300`} />
 

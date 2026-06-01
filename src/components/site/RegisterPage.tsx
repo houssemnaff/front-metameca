@@ -478,7 +478,7 @@ export default function RegisterPage() {
                       onFocus={() => setFocused("firstName")}
                       onBlur={() => setFocused("")}
                       style={inputStyle("firstName")}
-                      placeholder="Jean"
+                      placeholder="seif"
                       required
                     />
                   </div>
@@ -520,7 +520,7 @@ export default function RegisterPage() {
                       onFocus={() => setFocused("phone")}
                       onBlur={() => setFocused("")}
                       style={inputStyle("phone")}
-                      placeholder="+213 000 000 000"
+                      placeholder="+216 000 000 000"
                     />
                   </div>
                 </div>
@@ -536,7 +536,7 @@ export default function RegisterPage() {
                     onFocus={() => setFocused("email")}
                     onBlur={() => setFocused("")}
                     style={inputStyle("email")}
-                    placeholder="jean.dupont@example.com"
+                    placeholder="se.dupont@example.com"
                     required
                   />
                 </div>

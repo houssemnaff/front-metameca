@@ -1,7 +1,6 @@
 import type { FormEvent } from "react";
 import { Plus, Tag, ChevronDown } from "lucide-react";
 import type { ProductForm, ProductStatus } from "../types";
-import { defaultCategories } from "../constants";
 import { styles, inp } from "../styles";
 import { Modal, Field, Row } from "./ui";
 
@@ -10,6 +9,7 @@ interface ProductFormModalProps {
   form: ProductForm;
   loading: boolean;
   selectValue: string;
+  availableCategories: string[];  // 👈 ajouté
   onClose: () => void;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   onCategorySelect: (value: string) => void;
@@ -22,6 +22,7 @@ export function ProductFormModal({
   form,
   loading,
   selectValue,
+  availableCategories,  // 👈 ajouté
   onClose,
   onSubmit,
   onCategorySelect,
@@ -86,7 +87,7 @@ export function ProductFormModal({
                 onBlur={(e) => (e.currentTarget.style.border = "1px solid #e5e7eb")}
               >
                 <option value="">-- Choisir une catégorie --</option>
-                {defaultCategories.map((cat) => (
+                {availableCategories.map((cat) => (  // 👈 remplacé defaultCategories
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
                 <option value="custom">＋ Autre catégorie</option>
@@ -114,6 +115,17 @@ export function ProductFormModal({
               />
             )}
           </div>
+        </Field>
+
+        {/* Famille */}
+        <Field label="Famille *">
+          <input
+            style={inp}
+            value={form.family}
+            onChange={e => onFormChange({ family: e.target.value })}
+            placeholder="ex: Électronique"
+            required
+          />
         </Field>
 
         {/* Description */}
@@ -166,7 +178,6 @@ export function ProductFormModal({
             />
           </label>
 
-          {/* New image previews */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
             {form.imagesNew.map((img, i) => (
               <div key={i} style={{ position: "relative" }}>
@@ -190,7 +201,6 @@ export function ProductFormModal({
             ))}
           </div>
 
-          {/* Existing images (edit mode) */}
           {editId && form.images?.length > 0 && (
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
               {form.images.map((img, i) => (
