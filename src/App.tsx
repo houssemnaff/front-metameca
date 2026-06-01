@@ -57,9 +57,9 @@ interface CatalogData {
 
 const defaultCatalogs: CatalogData[] = [
   {
-    title: "Portes en acier",
+   title: "Portes en acier",
     subtitle: "Menuiserie sur mesure",
-    desc: "Collection complète de portes industrielles et résidentielles...",
+    desc: "Collection de portes métalliques et blindées pour intérieur et extérieur, alliant sécurité et design moderne.",
     pdf: "/pdfs/menuiserie.pdf",
     cover: "/covers/menuiserie.jpg",
     year: "2024",
@@ -67,15 +67,31 @@ const defaultCatalogs: CatalogData[] = [
   {
     title: "Cuisines Équipées",
     subtitle: "Design & solutions modernes",
-    desc: "Architectures de cuisine contemporaines...",
+    desc: "Cuisines contemporaines sur mesure avec optimisation de l’espace et matériaux premium.",
     pdf: "/pdfs/cuisine.pdf",
     cover: "/covers/cuisine.jpg",
     year: "2024",
   },
   {
+    title: "Tables Basses",
+    subtitle: "Salon & mobilier design",
+    desc: "Collection de tables basses modernes en bois, métal et verre pour salons élégants et minimalistes.",
+    pdf: "/pdfs/tablebasse.pdf",
+    cover: "/covers/tablebasse.png",
+    year: "2024",
+  },
+  {
+    title: "Dressing & Rangements",
+    subtitle: "Organisation sur mesure",
+    desc: "Solutions de dressings modernes et modulaires pour optimiser vos espaces avec style et fonctionnalité.",
+    pdf: "/pdfs/dressing.pdf",
+    cover: "/covers/dressing.jpg",
+    year: "2024",
+  },
+  {
     title: "Meta Meca",
     subtitle: "Catalogue général",
-    desc: "L'ensemble de nos savoir-faire réunis...",
+    desc: "L’ensemble de nos savoir-faire réunis : menuiserie, mobilier et solutions sur mesure.",
     pdf: "/pdfs/meta.pdf",
     cover: "/covers/meta.jpg",
     year: "2024",
