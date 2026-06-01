@@ -69,14 +69,13 @@ export default function LoginPage() {
   setLoading(true);
   try {
     const authUser = await login(email, password);
-    console.log("authUser reçu:", authUser);        // ← ajoute
-    console.log("role:", authUser.role);             // ← ajoute
+              // ← ajoute
 
     if (authUser.role === "superadmin") {
-      console.log("→ navigate /admin");              // ← ajoute
+              // ← ajoute
       navigate("/admin", { replace: true });
     } else if (authUser.role === "client") {
-      console.log("→ navigate /dashboard");          // ← ajoute
+         // ← ajoute
       navigate("/dashboard", { replace: true });
     } else {
       setError("Rôle non reconnu");

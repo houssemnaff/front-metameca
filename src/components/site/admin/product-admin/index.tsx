@@ -82,8 +82,7 @@ const categories = ["all", ...new Set(products.map(p => p.category))];
     setLoading(true);
      const fd = new FormData();
     try {
-         console.log("imagesNew:", form.imagesNew);
-    console.log("fd entries:", [...fd.entries()]);
+         
       const finalReference =
         form.reference?.trim() ||
         (form.isCustomCategory ? "" : generateRef(form.category));

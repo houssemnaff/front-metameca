@@ -26,25 +26,25 @@ type NavbarProps = {
 // ── Static fallback data ──────────────────────────────────────────────────────
 
 const links: NavLink[] = [
-  { href: "#accueil", label: "Accueil" },
-  { href: "#process", label: "Process" },
-  { href: "#catalog", label: "Catalogue", hasDropdown: true },
+  { href: "/",         label: "Accueil"   },
+  { href: "/#process", label: "Process"   },
+  { href: "/#catalog", label: "Catalogue", hasDropdown: true },
   { href: "/produits", label: "Produits",  hasDropdown: true },
-  { href: "#contact", label: "Contact" },
+  { href: "/#contact", label: "Contact"   },
 ];
 
 const defaultProductCategories: ProductCategory[] = [
-  { label: "Structures Métalliques",    desc: "Charpentes, portiques, halls industriels", href: "#structures", tag: "Populaire" },
-  { label: "Pièces Industrielles",      desc: "Usinage, tournage, fraisage de précision", href: "#pieces" },
-  { label: "Fabrication Sur Mesure",    desc: "Projets spéciaux et prototypage",          href: "#fabrication", tag: "Nouveau" },
-  { label: "Accessoires et Quincaillerie", desc: "Visserie, boulonnerie, fixations",      href: "#accessoires" },
+  { label: "Structures Métalliques",       desc: "Charpentes, portiques, halls industriels", href: "/produits?category=Structures+M%C3%A9talliques", tag: "Populaire" },
+  { label: "Pièces Industrielles",         desc: "Usinage, tournage, fraisage de précision", href: "/produits?category=Pi%C3%A8ces+Industrielles" },
+  { label: "Fabrication Sur Mesure",       desc: "Projets spéciaux et prototypage",          href: "/produits?category=Fabrication+Sur+Mesure", tag: "Nouveau" },
+  { label: "Accessoires et Quincaillerie", desc: "Visserie, boulonnerie, fixations",         href: "/produits?category=Accessoires+et+Quincaillerie" },
 ];
 
 const defaultCatalogItems: CatalogItem[] = [
-  { label: "Catalogue 2024",   sub: "Édition complète",      href: "#cat-2024"  },
-  { label: "Fiches Techniques", sub: "Spécifications",       href: "#fiches"    },
-  { label: "Projets Réalisés", sub: "Références clients",    href: "#references" },
-  { label: "Téléchargements",  sub: "PDF et plans CAD",      href: "#downloads" },
+  { label: "Catalogue 2024",    sub: "Édition complète",   href: "#cat-2024"   },
+  { label: "Fiches Techniques", sub: "Spécifications",     href: "#fiches"     },
+  { label: "Projets Réalisés",  sub: "Références clients", href: "#references" },
+  { label: "Téléchargements",   sub: "PDF et plans CAD",   href: "#downloads"  },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -54,14 +54,13 @@ export function Navbar({
   productCategories: customProducts = [],
   catalogItems: customCatalogs = [],
 }: NavbarProps): JSX.Element {
-  // Use custom props when provided, otherwise fall back to static defaults
   const products = customProducts.length > 0 ? customProducts : defaultProductCategories;
   const catalogs = customCatalogs.length > 0 ? customCatalogs : defaultCatalogItems;
 
-  const [scrolled, setScrolled]           = useState<boolean>(false);
-  const [mobileOpen, setMobileOpen]       = useState<boolean>(false);
-  const [cartCount]                       = useState<number>(1);
-  const [activeDropdown, setActiveDropdown] = useState<DropdownState>(null);
+  const [scrolled, setScrolled]               = useState<boolean>(false);
+  const [mobileOpen, setMobileOpen]           = useState<boolean>(false);
+  const [cartCount]                           = useState<number>(1);
+  const [activeDropdown, setActiveDropdown]   = useState<DropdownState>(null);
   const [hoveredCategory, setHoveredCategory] = useState<number>(0);
   const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -85,8 +84,8 @@ export function Navbar({
     : variant === "solid"     ? false
     : !scrolled && !mobileOpen && activeDropdown === null;
 
-  const textColor  = isTransparent ? "text-white"    : "text-[#1a1a1a]";
-  const dividerCol = isTransparent ? "bg-white/20"   : "bg-[#e0e0e0]";
+  const textColor  = isTransparent ? "text-white"  : "text-[#1a1a1a]";
+  const dividerCol = isTransparent ? "bg-white/20" : "bg-[#e0e0e0]";
 
   const handleMouseEnter = (label: string): void => {
     if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current);
@@ -117,8 +116,9 @@ export function Navbar({
       >
         <nav className="relative">
           <div className="flex items-center justify-between px-6 md:px-10 lg:px-14 h-[68px] md:h-[76px]">
-            {/* Logo */}
-            <a href="#accueil" title="Meta Meca" className="shrink-0 flex items-center">
+
+            {/* ── Logo ── */}
+            <Link to="/" title="Meta Meca" className="shrink-0 flex items-center">
               <img
                 src={logo}
                 alt="Meta Meca"
@@ -126,14 +126,15 @@ export function Navbar({
                   isTransparent ? "brightness-0 invert" : "brightness-0"
                 }`}
               />
-            </a>
+            </Link>
 
-            {/* Desktop nav links */}
+            {/* ── Desktop nav links ── */}
             <div className="hidden md:flex items-center gap-0">
               {links.map((link, i) => {
                 const isActive =
                   (link.label === "Produits"  && activeDropdown === "products") ||
                   (link.label === "Catalogue" && activeDropdown === "catalogue");
+
                 return (
                   <div
                     key={link.href}
@@ -141,8 +142,8 @@ export function Navbar({
                     onMouseEnter={() => handleMouseEnter(link.label)}
                     onMouseLeave={handleMouseLeave}
                   >
-                    <a
-                      href={link.href}
+                    <Link
+                      to={link.href}
                       className={`group relative inline-flex items-center gap-1 px-5 lg:px-6 py-2 font-['Cormorant_Garamond',serif] text-[13px] lg:text-[14px] tracking-[0.18em] uppercase transition-colors duration-300 ${textColor} ${isActive ? "opacity-60" : ""}`}
                       style={{ animationDelay: `${i * 60}ms` }}
                     >
@@ -159,13 +160,13 @@ export function Navbar({
                           isActive ? "w-[calc(100%-2rem)]" : "w-0 group-hover:w-[calc(100%-2.5rem)]"
                         } ${isTransparent ? "bg-white/70" : "bg-[#1a1a1a]"}`}
                       />
-                    </a>
+                    </Link>
                   </div>
                 );
               })}
             </div>
 
-            {/* Right actions */}
+            {/* ── Right actions ── */}
             <div className="flex items-center gap-0.5 md:gap-1">
               <div className="relative">
                 <AccountDropdown textColor={textColor} />
@@ -224,7 +225,7 @@ export function Navbar({
           {!isTransparent && <div className="absolute bottom-0 inset-x-0 h-px bg-[#ebebeb]" />}
         </nav>
 
-        {/* ── Products dropdown ───────────────────────────────────────────── */}
+        {/* ── Products dropdown ─────────────────────────────────────────────── */}
         <div
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -245,6 +246,7 @@ export function Navbar({
                   key={cat.href}
                   to={cat.href}
                   onMouseEnter={() => setHoveredCategory(i)}
+                  onClick={() => setActiveDropdown(null)}
                   className={`group flex items-start justify-between py-4 border-b border-[#f5f5f5] last:border-0 transition-all duration-200 ${
                     hoveredCategory === i ? "pl-1" : "pl-0"
                   }`}
@@ -292,9 +294,10 @@ export function Navbar({
                 </div>
                 <Link
                   to={products[hoveredCategory]?.href || "/produits"}
+                  onClick={() => setActiveDropdown(null)}
                   className="self-start text-[10px] tracking-[0.25em] uppercase font-semibold text-[#1a1a1a] border-b border-[#1a1a1a] pb-0.5 hover:opacity-50 transition-opacity duration-200 font-['Cormorant_Garamond',serif]"
                 >
-                  Découvrir {"\u2192"}
+                  Découvrir →
                 </Link>
               </div>
             </div>
@@ -304,13 +307,17 @@ export function Navbar({
             <p className="text-[10px] tracking-[0.2em] uppercase text-[#bbb]">
               Fabrication métallique industrielle et sur mesure
             </p>
-            <a href="/produits" className="text-[10px] tracking-[0.22em] uppercase text-[#888] hover:text-[#1a1a1a] transition-colors duration-200">
-              Voir tout {"\u2192"}
-            </a>
+            <Link
+              to="/produits"
+              onClick={() => setActiveDropdown(null)}
+              className="text-[10px] tracking-[0.22em] uppercase text-[#888] hover:text-[#1a1a1a] transition-colors duration-200"
+            >
+              Voir tout →
+            </Link>
           </div>
         </div>
 
-        {/* ── Catalogue dropdown ──────────────────────────────────────────── */}
+        {/* ── Catalogue dropdown ────────────────────────────────────────────── */}
         <div
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -330,6 +337,7 @@ export function Navbar({
                 <a
                   key={item.href}
                   href={item.href}
+                  onClick={() => setActiveDropdown(null)}
                   className="group flex flex-col gap-2 px-6 py-5 border-l border-[#f0f0f0] first:border-l-0 hover:bg-[#fafafa] transition-colors duration-200"
                   style={{
                     animation:
@@ -355,7 +363,7 @@ export function Navbar({
         </div>
       </header>
 
-      {/* ── Mobile overlay ────────────────────────────────────────────────── */}
+      {/* ── Mobile overlay ──────────────────────────────────────────────────── */}
       <div
         onClick={() => setMobileOpen(false)}
         className={`md:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ${
@@ -363,14 +371,16 @@ export function Navbar({
         }`}
       />
 
-      {/* ── Mobile drawer ─────────────────────────────────────────────────── */}
+      {/* ── Mobile drawer ───────────────────────────────────────────────────── */}
       <div
         className={`md:hidden fixed top-0 left-0 bottom-0 z-40 w-[85vw] max-w-[340px] bg-white flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between px-7 pt-8 pb-6 border-b border-[#ebebeb]">
-          <img src={logo} alt="Meta Meca" className="h-6 w-auto object-contain brightness-0" />
+          <Link to="/" onClick={() => setMobileOpen(false)}>
+            <img src={logo} alt="Meta Meca" className="h-6 w-auto object-contain brightness-0" />
+          </Link>
           <button
             type="button"
             aria-label="Close menu"
@@ -385,35 +395,35 @@ export function Navbar({
 
         <nav className="flex-1 px-7 pt-8 flex flex-col gap-0 overflow-y-auto">
           {links.map((link, i) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              to={link.href}
               onClick={() => setMobileOpen(false)}
               className="group flex items-center justify-between py-5 border-b border-[#f0f0f0] last:border-0 font-['Cormorant_Garamond',serif] text-[22px] tracking-[0.06em] font-light text-[#1a1a1a] hover:text-[#555]"
               style={{
-                opacity:   mobileOpen ? 1 : 0,
-                transform: mobileOpen ? "translateX(0)" : "translateX(-12px)",
+                opacity:    mobileOpen ? 1 : 0,
+                transform:  mobileOpen ? "translateX(0)" : "translateX(-12px)",
                 transition: `opacity 0.4s ease ${i * 40 + 80}ms, transform 0.4s ease ${i * 40 + 80}ms, color 0.2s`,
               }}
             >
               <span>{link.label}</span>
               <span className="text-[#ccc] text-[13px] tracking-[0.1em] font-['Cormorant_Garamond',serif]">0{i + 1}</span>
-            </a>
+            </Link>
           ))}
 
           <div className="mt-4 pt-6 border-t border-[#f5f5f5]">
             <p className="text-[9px] tracking-[0.28em] uppercase text-[#bbb] mb-4">Catégories</p>
             {products.map((cat) => (
-              <a
+              <Link
                 key={cat.href}
-                href={cat.href}
+                to={cat.href}
                 onClick={() => setMobileOpen(false)}
                 className="block py-3 border-b border-[#f8f8f8] last:border-0"
               >
                 <span className="text-[14px] font-['Cormorant_Garamond',serif] text-[#444] tracking-[0.05em]">
                   {cat.label}
                 </span>
-              </a>
+              </Link>
             ))}
           </div>
         </nav>

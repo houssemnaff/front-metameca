@@ -716,39 +716,76 @@ function BulkyModal({ onClose }: { onClose: () => void }) {
    (the guard in root page ensures this)
 ═══════════════════════════════════════════ */
 function ReservationModal({ product: p, qty, onClose }: { product: Product; qty: number; onClose: () => void }) {
-  const [form, setForm] = useState<ReservationForm>({ clientName: "", clientEmail: "", clientPhone: "", quantity: qty, scheduledDate: "", notes: "" });
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError]     = useState("");
+  const isLoggedIn = !!localStorage.getItem("mm_token");
+
+  const [form, setForm] = useState<ReservationForm>({
+    clientName: "", clientEmail: "", clientPhone: "",
+    quantity: qty, scheduledDate: "", notes: "",  
+  });
+  const [loadingUser, setLoadingUser] = useState(isLoggedIn);
+  const [loading,  setLoading]  = useState(false);
+  const [success,  setSuccess]  = useState(false);
+  const [error,    setError]    = useState("");
+
   const total = Number(p.price) * form.quantity;
 
-  useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
+  // ── Pré-remplir avec les infos du compte connecté ──
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    api.meUser()
+      .then(user => {
+        setForm(f => ({
+          ...f,
+          clientName:  user.name ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+          clientEmail: user.email ?? "",
+          clientPhone: user.phone ?? "",
+        }));
+      })
+      .catch(console.error)
+      .finally(() => setLoadingUser(false));
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setLoading(true); setError("");
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:4000/api/reservations/public", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ clientName: form.clientName, clientEmail: form.clientEmail, clientPhone: form.clientPhone, productId: p._id, quantity: form.quantity, scheduledDate: form.scheduledDate || undefined, notes: form.notes }),
+      await api.publicReservation({
+        clientName:    form.clientName,
+        clientEmail:   form.clientEmail,
+        clientPhone:   form.clientPhone,
+        productId:     p._id,
+        quantity:      form.quantity,
+        scheduledDate: form.scheduledDate || undefined,
+        notes:         form.notes,
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Erreur serveur");
       setSuccess(true);
     } catch (err) { setError((err as Error).message); }
     finally { setLoading(false); }
   };
 
-  const inp: React.CSSProperties = { width: "100%", background: "#fff", border: `1px solid ${T.border}`, padding: "11px 14px", fontSize: 13, color: T.ink, outline: "none", fontFamily: T.fontUI, boxSizing: "border-box" };
-  const lbl: React.CSSProperties = { fontFamily: T.fontUI, fontSize: 10, textTransform: "uppercase" as const, letterSpacing: "0.14em", color: T.inkLight, display: "flex", alignItems: "center", gap: 5 };
+  const inp: React.CSSProperties = {
+    width: "100%", background: "#fff", border: `1px solid ${T.border}`,
+    padding: "11px 14px", fontSize: 13, color: T.ink,
+    outline: "none", fontFamily: T.fontUI, boxSizing: "border-box",
+  };
+  const lbl: React.CSSProperties = {
+    fontFamily: T.fontUI, fontSize: 10, textTransform: "uppercase" as const,
+    letterSpacing: "0.14em", color: T.inkLight,
+    display: "flex", alignItems: "center", gap: 5,
+  };
 
   return (
-    <div onClick={e => e.target === e.currentTarget && onClose()} style={{ position: "fixed", inset: 0, zIndex: 150, display: "flex", alignItems: "flex-end", justifyContent: "center", background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)" }}>
+    <div
+      onClick={e => e.target === e.currentTarget && onClose()}
+      style={{ position: "fixed", inset: 0, zIndex: 150, display: "flex", alignItems: "flex-end", justifyContent: "center", background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)" }}
+    >
       <div style={{ width: "100%", maxWidth: 480, maxHeight: "94vh", overflowY: "auto", background: T.cream, animation: "pdpSlideUp .25s ease" }}>
+
+        {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 28px", borderBottom: `1px solid ${T.border}`, position: "sticky", top: 0, background: T.cream, zIndex: 1 }}>
           <div>
             <p style={{ fontFamily: T.fontUI, fontSize: 10, color: T.inkLight, textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 3px" }}>Réservation</p>
@@ -768,22 +805,52 @@ function ReservationModal({ product: p, qty, onClose }: { product: Product; qty:
             </div>
             <button onClick={onClose} style={{ padding: "12px 36px", fontFamily: T.fontUI, fontSize: 12, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", background: T.ink, color: "#fff", border: "none", cursor: "pointer", marginTop: 8 }}>Fermer</button>
           </div>
+        ) : loadingUser ? (
+          // Petit spinner pendant qu'on charge les infos du compte
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 56 }}>
+            <div style={{ width: 28, height: 28, border: `2px solid ${T.border}`, borderTopColor: T.inkMid, borderRadius: "50%", animation: "pdpSpin 0.8s linear infinite" }} />
+          </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 18 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-              <label style={lbl}><User size={10} /> Nom complet *</label>
-              <input style={inp} placeholder="Votre nom" value={form.clientName} onChange={e => setForm({ ...form, clientName: e.target.value })} required />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                <label style={lbl}><Mail size={10} /> Email *</label>
-                <input style={inp} type="email" placeholder="vous@email.com" value={form.clientEmail} onChange={e => setForm({ ...form, clientEmail: e.target.value })} required />
+
+            {/* ── Bandeau compte connecté (remplace les 3 champs identité) ── */}
+            {isLoggedIn ? (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 12,
+                background: T.accentSoft, border: `1px solid ${T.accent}22`,
+                padding: "12px 16px",
+              }}>
+                <User size={14} style={{ color: T.accent, flexShrink: 0 }} />
+                <div>
+                  <p style={{ fontFamily: T.fontUI, fontSize: 12, fontWeight: 500, color: T.ink, margin: 0 }}>
+                    {form.clientName}
+                  </p>
+                  <p style={{ fontFamily: T.fontUI, fontSize: 11, color: T.inkLight, margin: "2px 0 0" }}>
+                    {form.clientEmail}{form.clientPhone ? ` · ${form.clientPhone}` : ""}
+                  </p>
+                </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                <label style={lbl}><Phone size={10} /> Téléphone</label>
-                <input style={inp} type="tel" placeholder="+216 xx xxx xxx" value={form.clientPhone} onChange={e => setForm({ ...form, clientPhone: e.target.value })} />
-              </div>
-            </div>
+            ) : (
+              /* Champs identité uniquement pour les visiteurs non connectés */
+              <>
+                <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                  <label style={lbl}><User size={10} /> Nom complet *</label>
+                  <input style={inp} placeholder="Votre nom" value={form.clientName} onChange={e => setForm({ ...form, clientName: e.target.value })} required />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                    <label style={lbl}><Mail size={10} /> Email *</label>
+                    <input style={inp} type="email" placeholder="vous@email.com" value={form.clientEmail} onChange={e => setForm({ ...form, clientEmail: e.target.value })} required />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                    <label style={lbl}><Phone size={10} /> Téléphone</label>
+                    <input style={inp} type="tel" placeholder="+216 xx xxx xxx" value={form.clientPhone} onChange={e => setForm({ ...form, clientPhone: e.target.value })} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Quantité + Date — toujours visibles */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                 <label style={lbl}>Quantité</label>
@@ -794,6 +861,7 @@ function ReservationModal({ product: p, qty, onClose }: { product: Product; qty:
                 <input style={inp} type="date" min={new Date().toISOString().split("T")[0]} value={form.scheduledDate} onChange={e => setForm({ ...form, scheduledDate: e.target.value })} />
               </div>
             </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
               <label style={lbl}><FileText size={10} /> Notes</label>
               <textarea style={{ ...inp, resize: "vertical" }} rows={3} placeholder="Demandes particulières…" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
@@ -801,7 +869,7 @@ function ReservationModal({ product: p, qty, onClose }: { product: Product; qty:
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: `1px solid ${T.border}`, padding: "16px 20px", background: "#fff" }}>
               <span style={{ fontFamily: T.fontUI, fontSize: 10, color: T.inkLight, textTransform: "uppercase", letterSpacing: "0.14em" }}>Total estimé</span>
-              <span style={{ fontFamily: T.fontDisplay, fontSize: 24, fontWeight: 500, color: T.accent, letterSpacing: "-0.01em" }}>{total.toLocaleString("fr-TN")} DT</span>
+              <span style={{ fontFamily: T.fontDisplay, fontSize: 24, fontWeight: 500, color: T.accent }}>{total.toLocaleString("fr-TN")} DT</span>
             </div>
 
             {error && <p style={{ fontFamily: T.fontUI, color: T.danger, fontSize: 12, textAlign: "center", margin: 0 }}>{error}</p>}
@@ -880,7 +948,7 @@ export default function ProductDetailPage() {
    */
   const onReservationClick = () => {
     if (!product) return;
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("mm_token");
     if (token) {
       // Authenticated: open the inline modal (existing behaviour)
       setReserving(true);

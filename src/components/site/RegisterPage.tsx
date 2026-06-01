@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const [focused,   setFocused]   = useState("");
   const [mounted,   setMounted]   = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { register } = useAuth() as any;
+ const { register } = useAuth(); // no more `as any`
   const navigate      = useNavigate();
 
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
