@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
-import { Phone, MapPin, Mail, Send, MessageCircle, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { Phone, MapPin, Mail, MessageCircle, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { sendEmail } from "../../utils/sendemail";
 
 /* ─────────────────────────── Validation ────────────────────── */
 const schema = z.object({
@@ -213,27 +214,45 @@ export function Contact() {
   const [form, setForm]     = useState({ name: "", phone: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sent, setSent]     = useState(false);
+  const [sending, setSending] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [btnHovered, setBtnHovered] = useState(false);
 
   const { ref: leftRef,   vis: leftVis   } = useReveal(0.1);
   const { ref: rightRef,  vis: rightVis  } = useReveal(0.08);
   const { ref: headerRef, vis: headerVis } = useReveal(0.15);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitError("");
+
+    console.log("[Contact] Submit clicked", form);
+
     const r = schema.safeParse(form);
     if (!r.success) {
+      console.warn("[Contact] Validation failed", r.error.issues);
       const errs: Record<string, string> = {};
       r.error.issues.forEach((i) => (errs[i.path[0] as string] = i.message));
       setErrors(errs);
       return;
     }
+
     setErrors({});
-    const text = `Bonjour, je suis ${r.data.name} (${r.data.phone}). ${r.data.message}`;
-    window.open(`https://wa.me/21694703066?text=${encodeURIComponent(text)}`, "_blank");
-    setSent(true);
-    setForm({ name: "", phone: "", message: "" });
-    setTimeout(() => setSent(false), 4000);
+
+    try {
+      setSending(true);
+      console.log("[Contact] Calling sendEmail", r.data);
+      await sendEmail(r.data);
+      console.log("[Contact] Email sent successfully");
+      setSent(true);
+      setForm({ name: "", phone: "", message: "" });
+      setTimeout(() => setSent(false), 4000);
+    } catch (error) {
+      console.error("[Contact] sendEmail failed", error);
+      setSubmitError("Une erreur est survenue pendant l'envoi. Réessayez.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -481,6 +500,7 @@ export function Contact() {
               <div style={{ marginTop: 12 }}>
                 <button
                   type="submit"
+                  disabled={sending}
                   onMouseEnter={() => setBtnHovered(true)}
                   onMouseLeave={() => setBtnHovered(false)}
                   style={{
@@ -490,11 +510,15 @@ export function Contact() {
                     padding: "18px 40px",
                     background: sent
                       ? "rgba(16,185,129,0.08)"
+                      : sending
+                        ? "rgba(148,163,184,0.08)"
                       : btnHovered
                         ? COLORS.primary
                         : "transparent",
                     border: `1.5px solid ${sent
                       ? "rgba(16,185,129,0.5)"
+                      : sending
+                        ? COLORS.border
                       : btnHovered
                         ? COLORS.primary
                         : COLORS.border
@@ -502,6 +526,7 @@ export function Contact() {
                     borderRadius: 4,
                     cursor: "pointer",
                     fontFamily: "inherit",
+                    opacity: sending ? 0.8 : 1,
                     transition: "all 0.35s cubic-bezier(0.22,1,0.36,1)",
                   }}
                 >
@@ -510,21 +535,23 @@ export function Contact() {
                     textTransform: "uppercase", fontWeight: 700,
                     color: sent
                       ? COLORS.success
+                      : sending
+                        ? COLORS.textMuted
                       : btnHovered
                         ? "#ffffff"
                         : COLORS.textSoft,
                     transition: "color 0.3s ease",
                   }}>
-                    {sent ? "Envoyé via WhatsApp" : "Envoyer la demande"}
+                    {sent ? "Email envoyé" : sending ? "Envoi en cours..." : "Envoyer la demande"}
                   </span>
                   <span style={{
-                    transform: btnHovered && !sent ? "translate(3px,-3px)" : "translate(0,0)",
+                    transform: btnHovered && !sent && !sending ? "translate(3px,-3px)" : "translate(0,0)",
                     transition: "transform 0.35s ease",
                     display: "flex", alignItems: "center",
                   }}>
                     {sent
                       ? <CheckCircle2 size={14} style={{ color: COLORS.success }} />
-                      : <ArrowUpRight size={14} style={{ color: btnHovered ? "#ffffff" : COLORS.textMuted }} />
+                      : <ArrowUpRight size={14} style={{ color: btnHovered && !sending ? "#ffffff" : COLORS.textMuted }} />
                     }
                   </span>
                 </button>
@@ -533,8 +560,18 @@ export function Contact() {
                   fontSize: 10, color: COLORS.textMuted,
                   letterSpacing: "0.1em", marginTop: 14,
                 }}>
-                  Redirigé vers WhatsApp · Réponse sous 24h
+                  Réponse sous 24h par email
                 </p>
+                {submitError && (
+                  <p style={{
+                    fontSize: 10,
+                    color: "#ef4444",
+                    letterSpacing: "0.08em",
+                    marginTop: 8,
+                  }}>
+                    {submitError}
+                  </p>
+                )}
               </div>
             </form>
           </div>
