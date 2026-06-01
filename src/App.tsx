@@ -166,6 +166,11 @@ export default function App() {
 
           <Route path="/produits" element={<Layout><PublicProductsPage /></Layout>} />
           <Route path="/produits/:id" element={<Layout><ProductDetailPage /></Layout>} />
+          <Route path="/process" element={<Layout><Process /></Layout>} />
+          <Route path="/catalog" element={<Layout><Catalog /></Layout>} />
+          <Route path="/services" element={<Layout><Services /></Layout>} />
+          <Route path="/portfolio" element={<Layout><Portfolio /></Layout>} />
+          <Route path="/contact" element={<Layout><Contact /></Layout>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 

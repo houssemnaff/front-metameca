@@ -26,11 +26,11 @@ type NavbarProps = {
 // ── Static fallback data ──────────────────────────────────────────────────────
 
 const links: NavLink[] = [
-  { href: "/",         label: "Accueil"   },
-  { href: "/#process", label: "Process"   },
-  { href: "/#catalog", label: "Catalogue", hasDropdown: true },
-  { href: "/produits", label: "Produits",  hasDropdown: true },
-  { href: "/#contact", label: "Contact"   },
+  { href: "/",          label: "Accueil"   },
+  { href: "/process",   label: "Process"   },
+  { href: "/catalog",   label: "Catalogue", hasDropdown: true },
+  { href: "/produits",  label: "Produits",  hasDropdown: true },
+  { href: "/contact",   label: "Contact"   },
 ];
 
 const defaultProductCategories: ProductCategory[] = [
@@ -41,10 +41,10 @@ const defaultProductCategories: ProductCategory[] = [
 ];
 
 const defaultCatalogItems: CatalogItem[] = [
-  { label: "Catalogue 2024",    sub: "Édition complète",   href: "#cat-2024"   },
-  { label: "Fiches Techniques", sub: "Spécifications",     href: "#fiches"     },
-  { label: "Projets Réalisés",  sub: "Références clients", href: "#references" },
-  { label: "Téléchargements",   sub: "PDF et plans CAD",   href: "#downloads"  },
+  { label: "Catalogue 2024",    sub: "Édition complète",   href: "/catalog" },
+  { label: "Fiches Techniques", sub: "Spécifications",     href: "/catalog" },
+  { label: "Projets Réalisés",  sub: "Références clients", href: "/catalog" },
+  { label: "Téléchargements",   sub: "PDF et plans CAD",   href: "/catalog" },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
