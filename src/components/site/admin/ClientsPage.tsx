@@ -22,8 +22,13 @@ interface Reservation {
   product?: { name: string };
 }
 
-type ClientForm = Omit<Client, "_id" | "reservationCount" | "reservations">;
-const emptyForm: ClientForm = { name: "", email: "", phone: "", company: "", address: "", notes: "" };
+type ClientForm = Omit<Client, "_id" | "reservationCount" | "reservations"> & {
+  password?: string;
+};
+
+const emptyForm: ClientForm = {
+  name: "", email: "", phone: "", company: "", address: "", notes: "", password: "",
+};
 
 // ─── Client tier helpers ──────────────────────────────────────────────────────
 
@@ -368,6 +373,19 @@ export default function ClientsPage() {
                 <input style={inp} value={form.company ?? ""} onChange={e => setForm({ ...form, company: e.target.value })} />
               </Field>
             </Row>
+            {/* ← Ajouter ce bloc, uniquement à la création */}
+{!editId && (
+  <Field label="Mot de passe *">
+    <input
+      style={inp}
+      type="password"
+      placeholder="Mot de passe initial du client"
+      value={form.password ?? ""}
+      onChange={e => setForm({ ...form, password: e.target.value })}
+      required
+    />
+  </Field>
+)}
             <Field label="Adresse">
               <input style={inp} value={form.address ?? ""} onChange={e => setForm({ ...form, address: e.target.value })} />
             </Field>
