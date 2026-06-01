@@ -1,7 +1,7 @@
 import { Heart, ShoppingBag, ChevronDown, ArrowRight } from "lucide-react";
 import { useState, useEffect, useRef, type JSX } from "react";
 import { Link } from "react-router-dom";
-import logo from "../../assets/meta-logo.png";
+import logo from "../../assets/logoebh.png";
 import { useAuth } from "../../context/AuthContext";
 import AccountDropdown from "./client/AccountDropdown";
 
@@ -117,16 +117,46 @@ export function Navbar({
         <nav className="relative">
           <div className="flex items-center justify-between px-6 md:px-10 lg:px-14 h-[68px] md:h-[76px]">
 
-            {/* ── Logo ── */}
-            <Link to="/" title="Meta Meca" className="shrink-0 flex items-center">
-              <img
-                src={logo}
-                alt="Meta Meca"
-                className={`h-7 md:h-8 w-auto object-contain transition-all duration-300 ${
-                  isTransparent ? "brightness-0 invert" : "brightness-0"
-                }`}
-              />
-            </Link>
+           {/* ── Logo ── */}
+<Link
+  to="/"
+  title="Meta Meca"
+  className="shrink-0 flex items-center gap-3 group"
+>
+  <div className="relative">
+    <img
+      src={logo}
+      alt="Meta Meca"
+      className={`h-10 md:h-12 w-auto object-contain transition-all duration-300
+        group-hover:scale-105
+        drop-shadow-sm
+       ${isTransparent ? "brightness-0 invert" : "brightness-100"}
+      `}
+    />
+
+    {/* glow effect */}
+    <div className="absolute -inset-2 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition" />
+  </div>
+
+  {/* Optional brand text (si tu veux un look pro comme SaaS) */}
+ <div className="hidden sm:flex flex-col leading-none">
+  <span
+    className={`text-lg font-bold tracking-tight transition-colors duration-300 ${
+      isTransparent ? "text-white" : "text-gray-900"
+    }`}
+  >
+    Meta Meca
+  </span>
+
+  <span
+    className={`text-xs tracking-widest uppercase transition-colors duration-300 ${
+      isTransparent ? "text-white/80" : "text-gray-500"
+    }`}
+  >
+    Industries
+  </span>
+</div>
+</Link>
 
             {/* ── Desktop nav links ── */}
             <div className="hidden md:flex items-center gap-0">

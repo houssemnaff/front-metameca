@@ -20,7 +20,7 @@ export function useReservationGuard() {
 
   const handleReserve = useCallback(
     (productId: string) => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("mm_token");
 
       if (!token) {
         toast.info("Veuillez vous connecter ou créer un compte avant la réservation.", {
@@ -37,7 +37,6 @@ export function useReservationGuard() {
             background: "#0d3875",
             color: "#fff",
           },
-          progressStyle: { background: "rgba(255,255,255,0.35)" },
           icon: false,
         });
 
