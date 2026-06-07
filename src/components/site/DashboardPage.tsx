@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Users, CalendarCheck, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Package, Users, CalendarCheck, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle, Plus, FileText, Eye, Zap, Activity } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { api } from "../../utils/api";
 import type { Reservation, ReservationStats } from "../../types";
@@ -9,8 +9,10 @@ interface KPI {
   label: string;
   value: number | string;
   icon: LucideIcon;
-  color: string;
-  bg: string;
+  accent: string;
+  accentLight: string;
+  trend: string;
+  trendUp: boolean;
   path: string;
 }
 
@@ -18,7 +20,9 @@ interface StatusCard {
   label: string;
   value: number;
   icon: LucideIcon;
-  color: string;
+  accent: string;
+  accentLight: string;
+  percent: number;
 }
 
 export default function DashboardPage() {
@@ -43,94 +47,176 @@ export default function DashboardPage() {
     }).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Loader />;
+  if (loading) return <SkeletonLoader />;
+
+  const total = stats?.total || 1;
 
   const kpis: KPI[] = [
-    { label: "Produits",        value: productCount,                                   icon: Package,       color: "#6366f1", bg: "rgba(99,102,241,0.1)",  path: "/admin/products" },
-    { label: "Clients",         value: clientCount,                                    icon: Users,         color: "#10b981", bg: "rgba(16,185,129,0.1)",  path: "/admin/clients" },
-    { label: "Réservations",    value: stats?.total ?? 0,                              icon: CalendarCheck, color: "#f59e0b", bg: "rgba(245,158,11,0.1)",  path: "/admin/reservations" },
-    { label: "Revenu complété", value: `${(stats?.revenue ?? 0).toLocaleString()} DT`, icon: TrendingUp,    color: "#8b5cf6", bg: "rgba(139,92,246,0.1)",  path: "/admin/reservations" },
+    { label: "Produits",        value: productCount,                                   icon: Package,       accent: "#6366f1", accentLight: "#eef2ff", trend: "+8%",  trendUp: true,  path: "/admin/products" },
+    { label: "Clients",         value: clientCount,                                    icon: Users,         accent: "#0ea5e9", accentLight: "#e0f2fe", trend: "+14%", trendUp: true,  path: "/admin/clients" },
+    { label: "Réservations",    value: stats?.total ?? 0,                              icon: CalendarCheck, accent: "#f59e0b", accentLight: "#fef3c7", trend: "+5%",  trendUp: true,  path: "/admin/reservations" },
+    { label: "Revenu complété", value: `${(stats?.revenue ?? 0).toLocaleString()} DT`, icon: TrendingUp,    accent: "#10b981", accentLight: "#d1fae5", trend: "+21%", trendUp: true,  path: "/admin/reservations" },
   ];
 
   const statusCards: StatusCard[] = [
-    { label: "En attente", value: stats?.pending   ?? 0, icon: Clock,       color: "#f59e0b" },
-    { label: "Confirmés",  value: stats?.confirmed ?? 0, icon: CheckCircle, color: "#10b981" },
-    { label: "Annulés",    value: stats?.cancelled ?? 0, icon: XCircle,     color: "#ef4444" },
-    { label: "Complétés",  value: stats?.completed ?? 0, icon: AlertCircle, color: "#6366f1" },
+    { label: "En attente", value: stats?.pending   ?? 0, icon: Clock,        accent: "#f59e0b", accentLight: "#fef3c7", percent: Math.round(((stats?.pending   ?? 0) / total) * 100) },
+    { label: "Confirmés",  value: stats?.confirmed ?? 0, icon: CheckCircle,  accent: "#10b981", accentLight: "#d1fae5", percent: Math.round(((stats?.confirmed ?? 0) / total) * 100) },
+    { label: "Annulés",    value: stats?.cancelled ?? 0, icon: XCircle,      accent: "#ef4444", accentLight: "#fee2e2", percent: Math.round(((stats?.cancelled ?? 0) / total) * 100) },
+    { label: "Complétés",  value: stats?.completed ?? 0, icon: AlertCircle,  accent: "#6366f1", accentLight: "#eef2ff", percent: Math.round(((stats?.completed ?? 0) / total) * 100) },
   ];
 
-  return (
-    <div style={{ animation: "fadeIn .3s ease" }}>
-      <div style={styles.pageHeader}>
-        <div>
-          <h1 style={styles.pageTitle}>Tableau de bord</h1>
-          <p style={styles.pageSubtitle}>Vue d'ensemble de votre activité</p>
-        </div>
-      </div>
+  const today = new Date().toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
 
-      <div style={styles.kpiGrid}>
-        {kpis.map(({ label, value, icon: Icon, color, bg, path }) => (
-          <div key={label} style={styles.kpiCard} onClick={() => navigate(path)}>
-            <div style={{ ...styles.kpiIcon, background: bg }}>
-              <Icon size={20} color={color} />
-            </div>
-            <div>
-              <div style={styles.kpiValue}>{value}</div>
-              <div style={styles.kpiLabel}>{label}</div>
+  return (
+    <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: "#f8f9fc", minHeight: "100vh", padding: "0" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.10) !important; }
+        .kpi-card { transition: transform 0.22s ease, box-shadow 0.22s ease; }
+        .status-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.08) !important; }
+        .status-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .res-row:hover { background: #f1f5f9 !important; }
+        .res-row { transition: background 0.15s; }
+        .action-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.18) !important; }
+        .action-btn { transition: all 0.18s ease; }
+        .section-fade { animation: fadeUp 0.4s ease both; }
+      `}</style>
+
+      <div style={{ display: "flex", gap: 0, alignItems: "flex-start" }}>
+
+        {/* MAIN CONTENT */}
+        <div style={{ flex: 1, minWidth: 0, padding: "32px 28px" }}>
+
+          {/* HERO HEADER */}
+         
+
+          {/* KPI CARDS */}
+          <div className="section-fade" style={{ animationDelay: "60ms", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 28 }}>
+            {kpis.map(({ label, value, icon: Icon, accent, accentLight, trend, trendUp, path }) => (
+              <div key={label} className="kpi-card" onClick={() => navigate(path)} style={{ background: "#fff", border: "1px solid #e8eaf0", borderRadius: 16, padding: "22px 20px", cursor: "pointer", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 12, background: accentLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={20} color={accent} />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: trendUp ? "#10b981" : "#ef4444", background: trendUp ? "#d1fae5" : "#fee2e2", padding: "3px 8px", borderRadius: 20 }}>
+                    {trend}
+                  </span>
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: "#0f172a", lineHeight: 1, marginBottom: 4 }}>{value}</div>
+                <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* STATUS SECTION */}
+          <div className="section-fade" style={{ animationDelay: "120ms", marginBottom: 28 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 14 }}>Statut des réservations</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14 }}>
+              {statusCards.map(({ label, value, icon: Icon, accent, accentLight, percent }) => (
+                <div key={label} className="status-card" style={{ background: "#fff", border: "1px solid #e8eaf0", borderRadius: 14, padding: "18px 16px", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", borderLeft: `3px solid ${accent}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                    <div style={{ width: 30, height: 30, borderRadius: 8, background: accentLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Icon size={15} color={accent} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: accent }}>{percent}%</span>
+                  </div>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: "#0f172a", lineHeight: 1, marginBottom: 4 }}>{value}</div>
+                  <div style={{ fontSize: 12, color: "#64748b", fontWeight: 500, marginBottom: 10 }}>{label}</div>
+                  <div style={{ height: 4, background: "#f1f5f9", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ width: `${percent}%`, height: "100%", background: accent, borderRadius: 4, transition: "width 0.8s ease" }} />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
 
-      <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>Statut des réservations</h2>
-        <div style={styles.statusGrid}>
-          {statusCards.map(({ label, value, icon: Icon, color }) => (
-            <div key={label} style={styles.statusCard}>
-              <Icon size={16} color={color} />
-              <span style={styles.statusValue}>{value}</span>
-              <span style={styles.statusLabel}>{label}</span>
+          {/* RECENT RESERVATIONS */}
+          <div className="section-fade" style={{ animationDelay: "180ms" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: 0 }}>Réservations récentes</h2>
+              <button onClick={() => navigate("/admin/reservations")} style={{ background: "none", border: "1px solid #e2e8f0", color: "#6366f1", fontSize: 13, fontWeight: 600, cursor: "pointer", borderRadius: 8, padding: "6px 14px", transition: "all 0.15s" }}>
+                Voir tout →
+              </button>
             </div>
-          ))}
+            <div style={{ background: "#fff", border: "1px solid #e8eaf0", borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ background: "#f8f9fc" }}>
+                      {["Client", "Produit", "Quantité", "Montant", "Date", "Statut"].map(h => (
+                        <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid #f1f5f9", whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentReservations.map((r, i) => (
+                      <tr key={r.id} className="res-row" onClick={() => navigate("/admin/reservations")} style={{ cursor: "pointer", background: i % 2 === 0 ? "#fff" : "#fafbfc", borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "13px 16px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${(r.client?.name?.charCodeAt(0) ?? 0) * 15 % 360}, 60%, 88%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: `hsl(${(r.client?.name?.charCodeAt(0) ?? 0) * 15 % 360}, 50%, 35%)`, flexShrink: 0 }}>
+                              {r.client?.name?.charAt(0)?.toUpperCase() ?? "?"}
+                            </div>
+                            <span style={{ fontSize: 14, fontWeight: 500, color: "#0f172a", whiteSpace: "nowrap" }}>{r.client?.name ?? "—"}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: "13px 16px" }}>
+                          <span style={{ fontSize: 13, color: "#475569", background: "#f1f5f9", padding: "3px 8px", borderRadius: 6, fontWeight: 500, whiteSpace: "nowrap" }}>{r.product?.name ?? "—"}</span>
+                        </td>
+                        <td style={{ padding: "13px 16px", fontSize: 14, color: "#334155", fontWeight: 500 }}>{r.quantity}</td>
+                        <td style={{ padding: "13px 16px", fontSize: 14, color: "#0f172a", fontWeight: 600 }}>{r.totalPrice?.toLocaleString()} DT</td>
+                        <td style={{ padding: "13px 16px", fontSize: 13, color: "#64748b", whiteSpace: "nowrap" }}>{new Date(r.createdAt).toLocaleDateString("fr-FR")}</td>
+                        <td style={{ padding: "13px 16px" }}><StatusBadge status={r.status} /></td>
+                      </tr>
+                    ))}
+                    {recentReservations.length === 0 && (
+                      <tr>
+                        <td colSpan={6} style={{ padding: "40px 16px", textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
+                          Aucune réservation pour l'instant
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div style={styles.section}>
-        <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>Réservations récentes</h2>
-          <button style={styles.seeAllBtn} onClick={() => navigate("/admin/reservations")}>
-            Voir tout →
-          </button>
-        </div>
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                {["Client", "Produit", "Quantité", "Montant", "Date", "Statut"].map(h => (
-                  <th key={h} style={styles.th}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {recentReservations.map((r) => (
-                <tr key={r.id} style={styles.tr} onClick={() => navigate("/admin/reservations")}>
-                  <td style={styles.td}>{r.client?.name ?? "—"}</td>
-                  <td style={styles.td}>{r.product?.name ?? "—"}</td>
-                  <td style={styles.td}>{r.quantity}</td>
-                  <td style={styles.td}>{r.totalPrice?.toLocaleString()} DT</td>
-                  <td style={styles.td}>{new Date(r.createdAt).toLocaleDateString("fr-FR")}</td>
-                  <td style={styles.td}><StatusBadge status={r.status} /></td>
-                </tr>
-              ))}
-              {recentReservations.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={{ ...styles.td, textAlign: "center", color: "var(--text3)", padding: 32 }}>
-                    Aucune réservation pour l'instant
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* RIGHT SIDEBAR */}
+        <div style={{ width: 260, flexShrink: 0, padding: "32px 24px 32px 0" }}>
+
+          {/* QUICK ACTIONS */}
+        
+
+          {/* SYSTEM STATUS */}
+        
+
+          {/* TODAY SUMMARY */}
+          <div className="section-fade" style={{ animationDelay: "200ms", background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)", border: "1px solid #bae6fd", borderRadius: 16, padding: "20px", boxShadow: "0 2px 10px rgba(0,0,0,0.04)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+              <Eye size={15} color="#0ea5e9" />
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#0c4a6e", margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>Résumé du jour</h3>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 13, color: "#0369a1", fontWeight: 500 }}>En attente</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#0c4a6e" }}>{stats?.pending ?? 0}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 13, color: "#0369a1", fontWeight: 500 }}>Confirmés</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#0c4a6e" }}>{stats?.confirmed ?? 0}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 13, color: "#0369a1", fontWeight: 500 }}>Taux de complétion</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#0c4a6e" }}>{Math.round(((stats?.completed ?? 0) / total) * 100)}%</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -139,47 +225,37 @@ export default function DashboardPage() {
 
 export function StatusBadge({ status }: { status: Reservation["status"] }) {
   const map: Record<Reservation["status"], { label: string; color: string; bg: string }> = {
-    pending:   { label: "En attente", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    confirmed: { label: "Confirmé",   color: "#10b981", bg: "rgba(16,185,129,0.12)" },
-    cancelled: { label: "Annulé",     color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
-    completed: { label: "Complété",   color: "#6366f1", bg: "rgba(99,102,241,0.12)" },
+    pending:   { label: "En attente", color: "#b45309", bg: "#fef3c7" },
+    confirmed: { label: "Confirmé",   color: "#065f46", bg: "#d1fae5" },
+    cancelled: { label: "Annulé",     color: "#991b1b", bg: "#fee2e2" },
+    completed: { label: "Complété",   color: "#3730a3", bg: "#eef2ff" },
   };
   const s = map[status];
   return (
-    <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500 }}>
+    <span style={{ background: s.bg, color: s.color, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>
       {s.label}
     </span>
   );
 }
 
-function Loader() {
+function SkeletonLoader() {
+  const pulse: React.CSSProperties = {
+    background: "linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)",
+    backgroundSize: "200% 100%",
+    animation: "shimmer 1.5s infinite",
+    borderRadius: 10,
+  };
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-      <div style={{ width: 32, height: 32, border: "3px solid var(--border)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+    <div style={{ fontFamily: "'DM Sans', sans-serif", padding: "32px 28px", background: "#f8f9fc", minHeight: "100vh" }}>
+      <style>{`@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }`}</style>
+      <div style={{ ...pulse, height: 140, marginBottom: 28, borderRadius: 20 }} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
+        {[0,1,2,3].map(i => <div key={i} style={{ ...pulse, height: 110, borderRadius: 16 }} />)}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 28 }}>
+        {[0,1,2,3].map(i => <div key={i} style={{ ...pulse, height: 90, borderRadius: 14 }} />)}
+      </div>
+      <div style={{ ...pulse, height: 280, borderRadius: 16 }} />
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  pageHeader:   { marginBottom: 28 },
-  pageTitle:    { fontFamily: "var(--font-display)", fontSize: 28, color: "var(--text)", marginBottom: 4 },
-  pageSubtitle: { color: "var(--text2)", fontSize: 14 },
-  kpiGrid:      { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 28 },
-  kpiCard:      { background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: "20px", display: "flex", alignItems: "center", gap: 16, cursor: "pointer", transition: "border-color .2s, transform .2s" },
-  kpiIcon:      { width: 44, height: 44, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  kpiValue:     { fontSize: 24, fontWeight: 700, color: "var(--text)", lineHeight: 1 },
-  kpiLabel:     { fontSize: 13, color: "var(--text2)", marginTop: 4 },
-  section:      { marginBottom: 32 },
-  sectionHeader:{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
-  sectionTitle: { fontSize: 17, fontWeight: 600, color: "var(--text)" },
-  seeAllBtn:    { background: "none", border: "none", color: "var(--accent2)", fontSize: 13, cursor: "pointer" },
-  statusGrid:   { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12 },
-  statusCard:   { background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: "16px", display: "flex", flexDirection: "column", gap: 6 },
-  statusValue:  { fontSize: 28, fontWeight: 700, color: "var(--text)" },
-  statusLabel:  { fontSize: 13, color: "var(--text2)" },
-  tableWrap:    { background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius)", overflow: "hidden" },
-  table:        { width: "100%", borderCollapse: "collapse" },
-  th:           { padding: "12px 16px", textAlign: "left", fontSize: 12, color: "var(--text3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid var(--border)", background: "var(--bg2)" },
-  tr:           { cursor: "pointer", transition: "background .15s" },
-  td:           { padding: "13px 16px", fontSize: 14, color: "var(--text)", borderBottom: "1px solid var(--border)" },
-};

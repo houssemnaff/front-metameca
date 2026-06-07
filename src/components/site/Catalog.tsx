@@ -20,6 +20,16 @@ interface CatalogItem {
 
 /* ─────────────── Data ─────────────── */
 const catalogs: CatalogItem[] = [
+   {
+    title: "Meta Meca",
+    subtitle: "Catalogue général",
+    desc: "L'ensemble de nos savoir-faire réunis : structures, façades, mobilier industriel.",
+    pdf: "/pdfs/meta.pdf",
+    cover: MetaeCover,
+    year: "2026",
+    category: "Géneral",
+    tag: "Signature",
+  },
   {
     title: "Portes en acier",
     subtitle: "Menuiserie sur mesure",
@@ -58,16 +68,7 @@ const catalogs: CatalogItem[] = [
     year: "2026",
     category: "Dressing",
   },
-  {
-    title: "Meta Meca",
-    subtitle: "Catalogue général",
-    desc: "L'ensemble de nos savoir-faire réunis : structures, façades, mobilier industriel.",
-    pdf: "/pdfs/meta.pdf",
-    cover: MetaeCover,
-    year: "2026",
-    category: "Géneral",
-    tag: "Signature",
-  },
+ 
 ];
 
 const filters = ["Tous", "Portes", "Cuisines", "Furniture", "Dressing", "Facades"];
