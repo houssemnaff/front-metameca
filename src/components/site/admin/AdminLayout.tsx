@@ -82,7 +82,7 @@ export default function AdminLayout() {
                 <>
                   <span style={{
                     ...S.navIconWrap,
-                    background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
+                    background: isActive ? "rgba(99,102,241,0.12)" : "transparent",
                   }}>
                     <Icon size={17} />
                   </span>
@@ -148,7 +148,7 @@ export default function AdminLayout() {
             {/* Breadcrumb */}
             <div style={S.breadcrumb}>
               <span style={S.breadcrumbRoot}>Admin</span>
-              <ChevronRight size={13} color="#cbd5e1" />
+              <ChevronRight size={13} color="#000000" />
               <span style={S.breadcrumbPage}>{pageTitle}</span>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function AdminLayout() {
             </button>
 
             {/* Divider */}
-            <div style={{ width: 1, height: 22, background: "#e8edf4", margin: "0 4px" }} />
+            <div style={{ width: 1, height: 22, background: "#000000", margin: "0 4px" }} />
 
             {/* User chip */}
             <div style={S.topbarUser}>
@@ -193,14 +193,14 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  .sb-action { background: transparent; border: none; color: rgba(255,255,255,0.55); cursor: pointer;
+  .sb-action { background: transparent; border: none; color: #64748b; cursor: pointer;
     display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 8px;
     transition: background .15s, color .15s; }
-  .sb-action:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sb-action:hover { background: #f1f5f9; color: #0f172a; }
 
-  .logout-btn { background: transparent; border: none; color: rgba(255,255,255,0.45); cursor: pointer;
+  .logout-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer;
     display: flex; align-items: center; padding: 6px; border-radius: 7px; transition: background .15s, color .15s; flex-shrink: 0; }
-  .logout-btn:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .logout-btn:hover { background: #fee2e2; color: #ef4444; }
 
   .topbar-btn { background: transparent; border: none; cursor: pointer; display: flex; align-items: center;
     position: relative; color: #64748b; padding: 8px; border-radius: 9px; transition: background .15s, color .15s; }
@@ -213,12 +213,12 @@ const S: Record<string, React.CSSProperties> = {
     display: "flex",
     minHeight: "100vh",
     fontFamily: "'Inter', 'Segoe UI', sans-serif",
-    background: "#f4f6fb",
+    background: "#ffffff",
   },
 
   /* ── Sidebar ── */
   sidebar: {
-    background: "linear-gradient(180deg, #1e2337 0%, #16192a 100%)",
+    background: "linear-gradient(180deg, #ffffff 0%, #ffffff 100%)",
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
@@ -234,7 +234,7 @@ const S: Record<string, React.CSSProperties> = {
     alignItems: "center",
     gap: 12,
     padding: "22px 16px 18px",
-    borderBottom: "1px solid rgba(255,255,255,0.07)",
+    borderBottom: "1px solid #e8edf4",
   },
   brandLogo: {
     width: 36,
@@ -262,13 +262,13 @@ const S: Record<string, React.CSSProperties> = {
   brandName: {
     fontSize: 14,
     fontWeight: 700,
-    color: "#fff",
+    color: "#950303",
     whiteSpace: "nowrap",
   },
   brandSub: {
     fontSize: 10,
     fontWeight: 500,
-    color: "rgba(255,255,255,0.4)",
+    color: "#94a3b8",
     textTransform: "uppercase",
     letterSpacing: "0.1em",
     whiteSpace: "nowrap",
@@ -286,7 +286,7 @@ const S: Record<string, React.CSSProperties> = {
     fontSize: 9,
     fontWeight: 700,
     letterSpacing: "0.15em",
-    color: "rgba(255,255,255,0.25)",
+    color: "#94a3b8",
     padding: "0 6px",
     marginBottom: 6,
     marginTop: 4,
@@ -297,7 +297,7 @@ const S: Record<string, React.CSSProperties> = {
     alignItems: "center",
     gap: 10,
     borderRadius: 10,
-    color: "rgba(255,255,255,0.55)",
+    color: "#64748b",
     fontSize: 13,
     fontWeight: 500,
     textDecoration: "none",
@@ -306,8 +306,8 @@ const S: Record<string, React.CSSProperties> = {
     overflow: "hidden",
   },
   navItemActive: {
-    color: "#fff",
-    background: "rgba(99,102,241,0.25)",
+    color: "#6366f1",
+    background: "#eef2ff",
     borderLeft: "3px solid #6366f1",
   },
   navIconWrap: {
@@ -328,14 +328,14 @@ const S: Record<string, React.CSSProperties> = {
 
   sidebarBottom: {
     padding: "10px 10px 16px",
-    borderTop: "1px solid rgba(255,255,255,0.07)",
+    borderTop: "1px solid #e8edf4",
     display: "flex",
     flexDirection: "column",
     gap: 4,
   },
   divider: {
     height: 1,
-    background: "rgba(255,255,255,0.07)",
+    background: "#e8edf4",
     margin: "6px 0",
   },
   userRow: {
@@ -360,7 +360,7 @@ const S: Record<string, React.CSSProperties> = {
   userName: {
     fontSize: 13,
     fontWeight: 600,
-    color: "#fff",
+    color: "#0f172a",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -368,7 +368,7 @@ const S: Record<string, React.CSSProperties> = {
   },
   userEmail: {
     fontSize: 10,
-    color: "rgba(255,255,255,0.35)",
+    color: "#94a3b8",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
