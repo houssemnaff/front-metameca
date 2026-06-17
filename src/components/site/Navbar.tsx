@@ -1,9 +1,11 @@
-import { ChevronDown, ArrowRight } from "lucide-react";
-import { useState, useEffect, useRef, type JSX } from "react";
+import { ChevronDown, ArrowRight, Bell, Check, CheckCheck, X, CalendarCheck } from "lucide-react";
+import { useState, useEffect, useRef, useCallback, type JSX } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logoebh.png";
 import { useAuth } from "../../context/AuthContext";
 import AccountDropdown from "./client/AccountDropdown";
+import { api } from "../../utils/api";
+import type { AppNotification } from "../../types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -65,6 +67,46 @@ export function Navbar({
 
   const { user } = useAuth();
   const isClient = user?.role === "client";
+
+  /* ── Client notifications ── */
+  const [clientNotifs, setClientNotifs]       = useState<AppNotification[]>([]);
+  const [clientUnread, setClientUnread]       = useState(0);
+  const [clientBellOpen, setClientBellOpen]   = useState(false);
+  const clientBellRef = useRef<HTMLDivElement>(null);
+
+  const fetchClientNotifs = useCallback(async () => {
+    if (!isClient) return;
+    try {
+      const data = await api.getMyNotifications();
+      setClientNotifs(data.notifications);
+      setClientUnread(data.total);
+    } catch { /* silent */ }
+  }, [isClient]);
+
+  useEffect(() => {
+    if (!isClient) return;
+    fetchClientNotifs();
+    const id = setInterval(fetchClientNotifs, 30_000);
+    return () => clearInterval(id);
+  }, [isClient, fetchClientNotifs]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (clientBellRef.current && !clientBellRef.current.contains(e.target as Node))
+        setClientBellOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleClientMarkRead = async (id: string) => {
+    await api.markMyNotificationRead(id);
+    fetchClientNotifs();
+  };
+  const handleClientMarkAllRead = async () => {
+    await api.markAllMyNotificationsRead();
+    fetchClientNotifs();
+  };
 
   useEffect(() => {
     const onScroll = (): void => setScrolled(window.scrollY > 60);
@@ -204,7 +246,108 @@ export function Navbar({
                 )}
               </div>
 
-             
+              {/* Client notification bell */}
+              {isClient && (
+                <div ref={clientBellRef} style={{ position: "relative", marginLeft: 4 }}>
+                  <button
+                    onClick={() => setClientBellOpen(o => !o)}
+                    title="Notifications"
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      position: "relative",
+                      padding: 8,
+                      borderRadius: 9,
+                      display: "flex",
+                      alignItems: "center",
+                      color: isTransparent ? "#fff" : "#1a1a1a",
+                    }}
+                  >
+                    <Bell size={18} strokeWidth={1.5} />
+                    {clientUnread > 0 && (
+                      <span style={{
+                        position: "absolute", top: 4, right: 4,
+                        minWidth: 16, height: 16, borderRadius: 99,
+                        background: "#ef4444", color: "#fff",
+                        fontSize: 9, fontWeight: 700,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        padding: "0 3px", border: "2px solid #fff", lineHeight: 1,
+                      }}>
+                        {clientUnread > 9 ? "9+" : clientUnread}
+                      </span>
+                    )}
+                  </button>
+
+                  {clientBellOpen && (
+                    <div style={{
+                      position: "absolute", top: "calc(100% + 10px)", right: 0,
+                      width: 340, background: "#fff", border: "1px solid #e8edf4",
+                      borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,.15)",
+                      zIndex: 100, overflow: "hidden",
+                      fontFamily: "'Inter','Segoe UI',sans-serif",
+                    }}>
+                      {/* Header */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 12px", borderBottom: "1px solid #f1f5f9" }}>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Mes notifications</span>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          {clientUnread > 0 && (
+                            <button onClick={handleClientMarkAllRead} title="Tout marquer comme lu" style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", padding: 5, borderRadius: 6, display: "flex" }}>
+                              <CheckCheck size={14} />
+                            </button>
+                          )}
+                          <button onClick={() => setClientBellOpen(false)} style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", padding: 5, borderRadius: 6, display: "flex" }}>
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* List */}
+                      <div style={{ maxHeight: 320, overflowY: "auto" }}>
+                        {clientNotifs.length === 0 ? (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "36px 0" }}>
+                            <Bell size={28} color="#cbd5e1" />
+                            <p style={{ margin: "8px 0 0", fontSize: 13, color: "#94a3b8" }}>Aucune notification</p>
+                          </div>
+                        ) : (
+                          clientNotifs.map(n => (
+                            <div key={n._id} style={{
+                              display: "flex", alignItems: "flex-start", gap: 10,
+                              padding: "12px 16px", borderBottom: "1px solid #f1f5f9",
+                              background: n.read ? "#fafafa" : "#fff",
+                              opacity: n.read ? 0.6 : 1,
+                            }}>
+                              <div style={{ width: 32, height: 32, borderRadius: 8, background: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                <CalendarCheck size={14} color="#6366f1" />
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", marginBottom: 2 }}>{n.title}</div>
+                                <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.45, marginBottom: 4 }}>{n.message}</div>
+                                <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                                  {new Date(n.createdAt).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                </div>
+                              </div>
+                              {!n.read && (
+                                <button onClick={() => handleClientMarkRead(n._id)} title="Marquer comme lu" style={{ background: "transparent", border: "1px solid #e2e8f0", color: "#94a3b8", cursor: "pointer", padding: 4, borderRadius: 6, flexShrink: 0, display: "flex" }}>
+                                  <Check size={12} />
+                                </button>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {clientNotifs.length > 0 && (
+                        <div style={{ padding: "10px 16px", borderTop: "1px solid #f1f5f9", textAlign: "center" }}>
+                          <Link to="/mes-reservations" onClick={() => setClientBellOpen(false)} style={{ fontSize: 13, fontWeight: 600, color: "#6366f1", textDecoration: "none" }}>
+                            Voir mes réservations →
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className={`hidden lg:block w-px h-[18px] mx-3 ${dividerCol} transition-colors duration-300`} />
 

@@ -237,7 +237,7 @@ export default function AdminLayout() {
                       </div>
                     ) : (
                       notifications.map(n => (
-                        <div key={n._id} className="notif-item" style={S.notifItem}>
+                        <div key={n._id} className="notif-item" style={{ ...S.notifItem, opacity: n.read ? 0.5 : 1, background: n.read ? "#fafafa" : "#fff" }}>
                           <div style={S.notifIcon}>
                             <CalendarCheck size={15} color="#6366f1" />
                           </div>

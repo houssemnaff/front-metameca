@@ -166,7 +166,7 @@ meUser: () =>
     publicReservation: (data: Record<string, unknown>) =>
       request<Reservation>("POST", "/reservations/public", data),
 
-    /* Notifications --------------------------------------------------------- */
+    /* Notifications (admin) ------------------------------------------------- */
 
     getNotifications: () =>
       request<{ notifications: AppNotification[]; total: number }>("GET", "/notifications"),
@@ -176,4 +176,15 @@ meUser: () =>
 
     markAllNotificationsRead: () =>
       request<void>("PATCH", "/notifications/read-all"),
+
+    /* Notifications (client) ------------------------------------------------ */
+
+    getMyNotifications: () =>
+      request<{ notifications: AppNotification[]; total: number }>("GET", "/notifications/my"),
+
+    markMyNotificationRead: (id: string) =>
+      request<void>("PATCH", `/notifications/my/${id}/read`),
+
+    markAllMyNotificationsRead: () =>
+      request<void>("PATCH", "/notifications/my/read-all"),
   };
