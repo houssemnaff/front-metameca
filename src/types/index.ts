@@ -51,6 +51,16 @@ export interface Product {
 
   images: ProductImage[];
 }
+export interface AppNotification {
+  _id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  data?: Record<string, unknown>;
+  createdAt: string;
+}
+
 export interface Client {
   _id: string;
   name: string;

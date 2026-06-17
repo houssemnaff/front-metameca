@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Package, Users, CalendarCheck,
-  LogOut, Menu, Bell, ChevronRight, Settings,
+  LogOut, Menu, Bell, ChevronRight, Settings, Check, CheckCheck, X,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import { api } from "../../../utils/api";
 import type { LucideIcon } from "lucide-react";
+import type { AppNotification } from "../../../types";
 
 interface NavItem {
   to: string;
@@ -39,6 +41,46 @@ export default function AdminLayout() {
 
   const pageTitle = pageTitles[location.pathname] ?? "Admin";
   const initials  = (admin?.name ?? "A").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
+  /* ── Notifications ── */
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [unreadCount, setUnreadCount]     = useState(0);
+  const [bellOpen, setBellOpen]           = useState(false);
+  const bellRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await api.getNotifications();
+      setNotifications(data.notifications);
+      setUnreadCount(data.total);
+    } catch { /* silent */ }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+        setBellOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const handleMarkRead = async (id: string) => {
+    await api.markNotificationRead(id);
+    fetchNotifications();
+  };
+
+  const handleMarkAllRead = async () => {
+    await api.markAllNotificationsRead();
+    fetchNotifications();
+  };
 
   return (
     <div style={S.root}>
@@ -155,13 +197,86 @@ export default function AdminLayout() {
 
           <div style={S.topbarRight}>
             {/* Notification bell */}
-            <button className="topbar-btn" style={S.topbarBtn} title="Notifications">
-              <Bell size={18} />
-              <span style={S.notifDot} />
-            </button>
+            <div ref={bellRef} style={{ position: "relative" }}>
+              <button
+                className="topbar-btn"
+                style={S.topbarBtn}
+                title="Notifications"
+                onClick={() => setBellOpen(o => !o)}
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span style={S.notifBadge}>{unreadCount > 9 ? "9+" : unreadCount}</span>
+                )}
+              </button>
+
+              {/* Dropdown */}
+              {bellOpen && (
+                <div style={S.notifDropdown}>
+                  {/* Header */}
+                  <div style={S.notifHeader}>
+                    <span style={S.notifTitle}>Notifications</span>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      {unreadCount > 0 && (
+                        <button className="notif-action-btn" onClick={handleMarkAllRead} style={S.notifActionBtn} title="Tout marquer comme lu">
+                          <CheckCheck size={14} />
+                        </button>
+                      )}
+                      <button className="notif-action-btn" onClick={() => setBellOpen(false)} style={S.notifActionBtn}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* List */}
+                  <div style={S.notifList}>
+                    {notifications.length === 0 ? (
+                      <div style={S.notifEmpty}>
+                        <Bell size={28} color="#cbd5e1" />
+                        <p style={{ margin: "8px 0 0", fontSize: 13, color: "#94a3b8" }}>Aucune notification</p>
+                      </div>
+                    ) : (
+                      notifications.map(n => (
+                        <div key={n._id} className="notif-item" style={S.notifItem}>
+                          <div style={S.notifIcon}>
+                            <CalendarCheck size={15} color="#6366f1" />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={S.notifItemTitle}>{n.title}</div>
+                            <div style={S.notifItemMsg}>{n.message}</div>
+                            <div style={S.notifItemTime}>
+                              {new Date(n.createdAt).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                            </div>
+                          </div>
+                          <button
+                            className="notif-read-btn"
+                            onClick={() => handleMarkRead(n._id)}
+                            title="Marquer comme lu"
+                            style={S.notifReadBtn}
+                          >
+                            <Check size={12} />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {notifications.length > 0 && (
+                    <div style={S.notifFooter}>
+                      <button
+                        onClick={() => { navigate("/admin/reservations"); setBellOpen(false); }}
+                        style={S.notifFooterBtn}
+                      >
+                        Voir les réservations →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Divider */}
-            <div style={{ width: 1, height: 22, background: "#000000", margin: "0 4px" }} />
+            <div style={{ width: 1, height: 22, background: "#e8edf4", margin: "0 4px" }} />
 
             {/* User chip */}
             <div style={S.topbarUser}>
@@ -205,6 +320,20 @@ const CSS = `
   .topbar-btn { background: transparent; border: none; cursor: pointer; display: flex; align-items: center;
     position: relative; color: #64748b; padding: 8px; border-radius: 9px; transition: background .15s, color .15s; }
   .topbar-btn:hover { background: #f1f5f9; color: #0f172a; }
+
+  .notif-item { display:flex; align-items:flex-start; gap:10px; padding:12px 16px;
+    border-bottom:1px solid #f1f5f9; transition:background .12s; cursor:default; }
+  .notif-item:hover { background:#f8fafc; }
+  .notif-item:last-child { border-bottom:none; }
+
+  .notif-action-btn { background:transparent; border:none; color:#94a3b8; cursor:pointer;
+    display:flex; align-items:center; padding:5px; border-radius:6px; transition:background .12s, color .12s; }
+  .notif-action-btn:hover { background:#f1f5f9; color:#0f172a; }
+
+  .notif-read-btn { background:transparent; border:1px solid #e2e8f0; color:#94a3b8; cursor:pointer;
+    display:flex; align-items:center; padding:4px; border-radius:6px; flex-shrink:0;
+    transition:background .12s, color .12s; margin-top:2px; }
+  .notif-read-btn:hover { background:#eef2ff; border-color:#c7d2fe; color:#6366f1; }
 `;
 
 /* ─── Styles ─────────────────────────────────────────────────────────── */
@@ -470,6 +599,121 @@ const S: Record<string, React.CSSProperties> = {
     borderRadius: "50%",
     background: "#6366f1",
     border: "2px solid #fff",
+  },
+  notifBadge: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    minWidth: 17,
+    height: 17,
+    borderRadius: 99,
+    background: "#ef4444",
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: 700,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "0 4px",
+    border: "2px solid #fff",
+    lineHeight: 1,
+  },
+  notifDropdown: {
+    position: "absolute",
+    top: "calc(100% + 10px)",
+    right: 0,
+    width: 360,
+    background: "#fff",
+    border: "1px solid #e8edf4",
+    borderRadius: 16,
+    boxShadow: "0 20px 60px rgba(0,0,0,.15)",
+    zIndex: 100,
+    overflow: "hidden",
+    animation: "fadeIn .18s ease",
+  },
+  notifHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "14px 16px 12px",
+    borderBottom: "1px solid #f1f5f9",
+  },
+  notifTitle: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "#0f172a",
+  },
+  notifActionBtn: {
+    background: "transparent",
+    border: "none",
+    color: "#94a3b8",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    padding: 5,
+    borderRadius: 6,
+  },
+  notifList: {
+    maxHeight: 340,
+    overflowY: "auto",
+  },
+  notifEmpty: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "36px 0",
+  },
+  notifIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 9,
+    background: "#eef2ff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  notifItemTitle: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#0f172a",
+    marginBottom: 2,
+  },
+  notifItemMsg: {
+    fontSize: 12,
+    color: "#64748b",
+    lineHeight: 1.45,
+    marginBottom: 4,
+  },
+  notifItemTime: {
+    fontSize: 11,
+    color: "#94a3b8",
+    fontWeight: 500,
+  },
+  notifReadBtn: {
+    background: "transparent",
+    border: "1px solid #e2e8f0",
+    color: "#94a3b8",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    padding: 4,
+    borderRadius: 6,
+    flexShrink: 0,
+    marginTop: 2,
+  },
+  notifFooter: {
+    padding: "10px 16px",
+    borderTop: "1px solid #f1f5f9",
+    textAlign: "center",
+  },
+  notifFooterBtn: {
+    background: "none",
+    border: "none",
+    color: "#6366f1",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
   },
   topbarUser: {
     display: "flex",
