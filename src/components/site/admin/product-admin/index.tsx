@@ -31,7 +31,7 @@ export default function AdminProductsPage() {
   /* ── Data ── */
   const load = async () => {
     const data = await api.getProducts(search ? { search } : {});
-    setProducts(data);
+    setProducts(data as unknown as Product[]);
   };
 
   useEffect(() => { load(); }, [search]);
@@ -58,7 +58,7 @@ export default function AdminProductsPage() {
       isCustomCategory: !isDefault,
       family: p.family ?? "",
     });
-    setEditId(p._id);
+    setEditId(p._id ?? null);
     setShowModal(true);
   };
 
@@ -149,7 +149,7 @@ export default function AdminProductsPage() {
           <p style={styles.sub}>
             {products.filter(p =>
               (selectedCategory === "all" || p.category === selectedCategory) &&
-              (stockFilter === "all" || p.stock === 0)
+              (stockFilter === "all" || Number(p.stock) === 0)
             ).length} produit(s)
           </p>
         </div>
@@ -201,7 +201,7 @@ export default function AdminProductsPage() {
         {products
           .filter((p) =>
             (selectedCategory === "all" || p.category === selectedCategory) &&
-            (stockFilter === "all" || p.stock === 0)
+            (stockFilter === "all" || Number(p.stock) === 0)
           )
           .map((p) => (
             <ProductCard
@@ -209,7 +209,7 @@ export default function AdminProductsPage() {
               product={p}
               onClick={() => setDetailProduct(p)}
               onEdit={() => openEdit(p)}
-              onDelete={() => setDelConfirm(p._id)}
+              onDelete={() => setDelConfirm(p._id ?? null)}
             />
           ))}
         {products.length === 0 && (

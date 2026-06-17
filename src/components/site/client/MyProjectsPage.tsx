@@ -1,7 +1,6 @@
 // src/components/site/client/MyProjectsPage.tsx
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
-import { api } from "../../../utils/api";
 
 type Project = {
   id: string;
@@ -31,8 +30,12 @@ export default function MyProjectsPage() {
 
   useEffect(() => {
     if (!user) return;
-    api
-      .get(`/projects?clientId=${user.id}`)
+    const token = localStorage.getItem("mm_token");
+    const base = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+    fetch(`${base}/projects?clientId=${user.id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((r) => r.json())
       .then((data) => setProjects(data as Project[]))
       .catch(() => setError("Impossible de charger vos projets."))
       .finally(() => setLoading(false));

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Users, CalendarCheck, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle, Plus, FileText, Eye, Zap, Activity } from "lucide-react";
+import { Package, Users, CalendarCheck, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle, Eye } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { api } from "../../utils/api";
 import type { Reservation, ReservationStats } from "../../types";
@@ -65,8 +65,6 @@ export default function DashboardPage() {
     { label: "Complétés",  value: stats?.completed ?? 0, icon: AlertCircle,  accent: "#6366f1", accentLight: "#eef2ff", percent: Math.round(((stats?.completed ?? 0) / total) * 100) },
   ];
 
-  const today = new Date().toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: "#f8f9fc", minHeight: "100vh", padding: "0" }}>
@@ -154,7 +152,7 @@ export default function DashboardPage() {
                   </thead>
                   <tbody>
                     {recentReservations.map((r, i) => (
-                      <tr key={r.id} className="res-row" onClick={() => navigate("/admin/reservations")} style={{ cursor: "pointer", background: i % 2 === 0 ? "#fff" : "#fafbfc", borderBottom: "1px solid #f1f5f9" }}>
+                      <tr key={r._id} className="res-row" onClick={() => navigate("/admin/reservations")} style={{ cursor: "pointer", background: i % 2 === 0 ? "#fff" : "#fafbfc", borderBottom: "1px solid #f1f5f9" }}>
                         <td style={{ padding: "13px 16px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${(r.client?.name?.charCodeAt(0) ?? 0) * 15 % 360}, 60%, 88%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: `hsl(${(r.client?.name?.charCodeAt(0) ?? 0) * 15 % 360}, 50%, 35%)`, flexShrink: 0 }}>

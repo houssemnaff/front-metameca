@@ -1,4 +1,4 @@
-import { useState, type SyntheticEvent } from "react";
+import { useState } from "react";
 import { Pencil, Trash2, Package } from "lucide-react";
 import type { Product } from "../types";
 import { styles } from "../styles";
@@ -55,7 +55,7 @@ function getStockMeta(stock: number): {
 export function ProductCard({ product: p, onClick, onEdit, onDelete }: ProductCardProps) {
   const [hovered, setHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
-  const stock = getStockMeta(p.stock);
+  const stock = getStockMeta(Number(p.stock));
 
   // ── Card container ──────────────────────────────────────────────────────────
   const cardStyle: React.CSSProperties = {
@@ -330,7 +330,7 @@ export function ProductCard({ product: p, onClick, onEdit, onDelete }: ProductCa
                 display: "inline-block",
                 flexShrink: 0,
               }} />
-              {p.stock === 0 ? "Out of stock" : `${p.stock} in stock`}
+              {Number(p.stock) === 0 ? "Out of stock" : `${p.stock} in stock`}
             </div>
           </div>
 

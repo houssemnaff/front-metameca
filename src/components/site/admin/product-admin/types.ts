@@ -1,10 +1,8 @@
-import type { ProductImage } from "../../../../types";
-
-
 export type ProductStatus = "active" | "inactive";
 
 // types.ts
 export interface Product {
+  _id?: string;
   name: string;
   price: string;
   stock: string;

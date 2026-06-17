@@ -140,7 +140,6 @@ export default function ClientsPage() {
 
   // KPI derived values
   const totalClients = clients.length;
-  const vipClients = clients.filter(c => (c.reservationCount ?? 0) >= 10).length;
   const activeClients = clients.filter(c => (c.reservationCount ?? 0) >= 3).length;
 
   return (
@@ -502,12 +501,12 @@ export default function ClientsPage() {
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 
-function KpiCard({ icon, label, value, bg, accent }: {
+function KpiCard({ icon, label, value, bg }: {
   icon: React.ReactNode;
   label: string;
   value: number;
   bg: string;
-  accent: string;
+  accent?: string;
 }) {
   return (
     <div style={{
@@ -642,9 +641,8 @@ const inp: React.CSSProperties = {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const S: Record<string, React.CSSProperties> & {
-  resBadge: (count: number) => React.CSSProperties;
-} = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const S: any = {
   header:     { display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 },
   title:      { fontFamily: "var(--font-display)", fontSize: 27, color: "var(--text)", fontWeight: 800, marginBottom: 3, letterSpacing: -0.5 },
   sub:        { color: "var(--text3)", fontSize: 13 },

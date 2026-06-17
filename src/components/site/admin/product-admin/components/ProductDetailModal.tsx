@@ -144,7 +144,7 @@ export function ProductDetailModal({ product: p, onClose, onEdit, onDelete }: Pr
             <button style={dStyles.editBtn} onClick={() => onEdit(p)}>
               <Pencil size={14} /> Modifier
             </button>
-            <button style={dStyles.delBtn} onClick={() => onDelete(p._id)}>
+            <button style={dStyles.delBtn} onClick={() => onDelete(p._id ?? "")}>
               <Trash2 size={14} /> Supprimer
             </button>
           </div>

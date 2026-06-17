@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "../Navbar";
+import { HeroSlider } from "../HeroSlider";
+import { Services } from "../Services";
+import { Process } from "../Process";
+import { Portfolio } from "../Products/Portfolio";
+import { Catalog } from "../Catalog";
+import { Contact } from "../Contact";
+import { Footer } from "../Footer";
 import { api } from "../../../utils/api";
 
 const LAYOUT = { header: 88.5 };
 
-/* ── Layout général — pages internes (produits, réservations…) ── */
-export function Layout({ children }: { children: React.ReactNode }) {
-  const [categories, setCategories] = useState<string[]>([]);
+type CatalogData = {
+  title: string;
+  subtitle: string;
+  desc: string;
+  pdf: string;
+  cover: string;
+  year: string;
+};
 
 const defaultCatalogs: CatalogData[] = [
   {
@@ -50,6 +62,11 @@ const defaultCatalogs: CatalogData[] = [
     year: "2024",
   },
 ];
+
+/* ── Layout général — pages internes (produits, réservations…) ── */
+export function Layout({ children }: { children: React.ReactNode }) {
+  const [categories, setCategories] = useState<string[]>([]);
+
   useEffect(() => {
     api
       .getProducts()

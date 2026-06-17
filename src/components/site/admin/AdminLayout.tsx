@@ -19,7 +19,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function AdminLayout() {
-  const { admin, logout } = useAuth();
+  const { user: admin, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 

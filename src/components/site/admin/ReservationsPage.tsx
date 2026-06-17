@@ -204,7 +204,7 @@ const isOverdue = (date?: string) => {
     if (!files.length) return;
     setUploadLoading(true);
     try {
-      const updated = await api.uploadReservationFiles(detailRes._id, files) as ReservationFile[];
+      const updated = await api.uploadReservationFiles(detailRes._id, files) as unknown as ReservationFile[];
       setDetailRes({ ...detailRes, files: updated });
       load();
     } catch (err) {
@@ -698,12 +698,12 @@ const isOverdue = (date?: string) => {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function KpiCard({
-  icon, label, value, accent, bg, wide,
+  icon, label, value, bg, wide,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
-  accent: string;
+  accent?: string;
   bg: string;
   wide?: boolean;
 }) {

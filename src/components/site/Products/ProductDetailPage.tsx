@@ -697,7 +697,7 @@ function BulkyModal({ onClose }: { onClose: () => void }) {
             <span style={{ color: T.inkLight, fontFamily: T.fontUI }}>Largeur minimale de porte</span><span style={{ fontWeight: 500, color: T.ink, fontFamily: T.fontUI }}>70 cm</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            {steps.map(({ icon: Icon, label }, i) => (
+            {steps.map(({ label }, i) => (
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, border: `1px solid ${T.border}`, padding: "12px 16px" }}>
                 <div style={{ width: 22, height: 22, borderRadius: "50%", background: T.ink, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, flexShrink: 0, fontFamily: T.fontUI }}>{i + 1}</div>
                 <span style={{ fontFamily: T.fontUI, fontSize: 12, color: T.ink, fontWeight: 500 }}>{label}</span>
@@ -736,9 +736,9 @@ function ReservationModal({ product: p, qty, onClose }: { product: Product; qty:
       .then(user => {
         setForm(f => ({
           ...f,
-          clientName:  user.name ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+          clientName:  user.name ?? "",
           clientEmail: user.email ?? "",
-          clientPhone: user.phone ?? "",
+          clientPhone: "",
         }));
       })
       .catch(console.error)

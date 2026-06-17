@@ -1,4 +1,4 @@
-import { Heart, ShoppingBag, ChevronDown, ArrowRight } from "lucide-react";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import { useState, useEffect, useRef, type JSX } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logoebh.png";
@@ -59,7 +59,6 @@ export function Navbar({
 
   const [scrolled, setScrolled]               = useState<boolean>(false);
   const [mobileOpen, setMobileOpen]           = useState<boolean>(false);
-  const [cartCount]                           = useState<number>(1);
   const [activeDropdown, setActiveDropdown]   = useState<DropdownState>(null);
   const [hoveredCategory, setHoveredCategory] = useState<number>(0);
   const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -31,19 +31,6 @@ import MyProjectsPage         from "./components/site/client/MyProjectsPage";
 
 // ── Interfaces ───────────────────────────────────────────────────────────────
 
-interface Product {
-  _id: string;
-  name: string;
-  description?: string;
-  price: number | string;
-  stock?: number | string;
-  category?: string;
-  family?: string;
-  status: "active" | "inactive";
-  images: { url: string }[];
-  slug?: string;
-}
-
 interface CatalogData {
   title: string;
   subtitle: string;
