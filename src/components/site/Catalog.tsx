@@ -544,20 +544,20 @@ function CounterBadge({ count }: { count: number }) {
 
 /* ─────────────── Main Catalog Component ─────────────── */
 export function Catalog() {
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [activeFilter, setActiveFilter] = useState("Tous");
   const [filtered, setFiltered] = useState(catalogs);
 
   useEffect(() => {
-    if (activeFilter === "All") {
+    if (activeFilter === "Tous") {
       setFiltered(catalogs);
     } else {
       setFiltered(catalogs.filter((c) => c.category === activeFilter));
     }
   }, [activeFilter]);
 
-  // Split: first featured item (if All selected), rest in grid
-  const featuredItem = activeFilter === "All" ? filtered[0] : null;
-  const gridItems = activeFilter === "All" ? filtered.slice(1) : filtered;
+  // Split: first featured item (if Tous selected), rest in grid
+  const featuredItem = activeFilter === "Tous" ? filtered[0] : null;
+  const gridItems = activeFilter === "Tous" ? filtered.slice(1) : filtered;
 
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
