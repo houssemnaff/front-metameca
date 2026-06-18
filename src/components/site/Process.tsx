@@ -38,6 +38,7 @@ function StepBlock({
 
   return (
     <div
+      className="proc-step"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -90,7 +91,7 @@ function StepBlock({
             height: "38%",
             background: "linear-gradient(to bottom, transparent, rgba(180,160,120,0.22), transparent)",
           }}
-          className="hidden lg:block"
+          className="proc-connector hidden lg:block"
         />
       )}
 
@@ -215,10 +216,20 @@ export function Process() {
         }}
       />
 
+      <style>{`
+        @media (max-width: 768px) {
+          .proc-steps { flex-direction: column !important; overflow-x: visible !important; }
+          .proc-step  { flex: none !important; min-width: 0 !important; padding: 32px 20px 28px !important; border-bottom: 1px solid rgba(180,165,140,0.12); }
+          .proc-step:last-child { border-bottom: none !important; }
+          .proc-connector { display: none !important; }
+          .proc-header { margin-bottom: 40px !important; }
+        }
+      `}</style>
       <div style={{ width: "100%", margin: 0, padding: "0 24px" }}>
         {/* ── Header ── */}
         <div
           ref={headerRef}
+          className="proc-header"
           style={{
             marginBottom: 72,
             opacity: headerVisible ? 1 : 0,
@@ -291,6 +302,7 @@ export function Process() {
           {/* Horizontal ruling line behind steps */}
           <div
             aria-hidden="true"
+            className="proc-connector"
             style={{
               position: "absolute",
               top: 64,
@@ -305,6 +317,7 @@ export function Process() {
           {/* ── Steps row ── */}
           <div
             ref={sectionRef}
+            className="proc-steps"
             style={{
               display: "flex",
               flexWrap: "nowrap",
