@@ -265,6 +265,15 @@ export function Contact() {
         padding: "0 0 0",
       }}
     >
+      <style>{`
+        @media (max-width: 768px) {
+          .contact-header-strip { padding: 32px 24px 28px !important; }
+          .contact-split { grid-template-columns: 1fr !important; }
+          .contact-left-panel { padding: 48px 24px 48px !important; border-right: none !important; border-bottom: 1px solid ${COLORS.border} !important; }
+          .contact-right-panel { padding: 48px 24px 48px !important; }
+          .contact-bottom-strip { padding: 16px 24px !important; }
+        }
+      `}</style>
       {/* Subtle dot texture */}
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
@@ -300,6 +309,7 @@ export function Contact() {
       {/* ── Header strip ── */}
       <div
         ref={headerRef}
+        className="contact-header-strip"
         style={{
           borderBottom: `1px solid ${COLORS.border}`,
           padding: "48px 60px 40px",
@@ -348,7 +358,7 @@ export function Contact() {
       </div>
 
       {/* ── Main split layout ── */}
-      <div style={{
+      <div className="contact-split" style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         minHeight: "62vh",
@@ -357,6 +367,7 @@ export function Contact() {
         {/* ── LEFT: Company info ── */}
         <div
           ref={leftRef}
+          className="contact-left-panel"
           style={{
             padding: "64px 60px 72px",
             borderRight: `1px solid ${COLORS.border}`,
@@ -440,6 +451,7 @@ export function Contact() {
         {/* ── RIGHT: Form ── */}
         <div
           ref={rightRef}
+          className="contact-right-panel"
           style={{
             padding: "64px 60px 72px",
             background: COLORS.bg,
@@ -579,7 +591,7 @@ export function Contact() {
       </div>
 
       {/* ── Bottom strip ── */}
-      <div style={{
+      <div className="contact-bottom-strip" style={{
         borderTop: `1px solid ${COLORS.border}`,
         padding: "20px 60px",
         background: COLORS.bgSoft,

@@ -405,6 +405,7 @@ export function Portfolio() {
   return (
     <section
       id="projets"
+      className="pf-section"
       style={{ background: "#ffffff", padding: "100px 0 96px", position: "relative" }}
     >
       <style>{`
@@ -412,9 +413,20 @@ export function Portfolio() {
           0%   { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
+        @media (max-width: 768px) {
+          .pf-section { padding: 64px 0 60px !important; }
+          .pf-inner { padding: 0 16px !important; }
+          .pf-row2 { grid-template-columns: 1fr !important; }
+          .pf-row3 { grid-template-columns: 1fr !important; }
+          .pf-skeleton-row { grid-template-columns: 1fr !important; }
+          .pf-header { margin-bottom: 40px !important; }
+        }
+        @media (max-width: 480px) {
+          .pf-section { padding: 48px 0 40px !important; }
+        }
       `}</style>
 
-      <div style={{ width: "100%", margin: 0, padding: "0 24px" }}>
+      <div className="pf-inner" style={{ width: "100%", margin: 0, padding: "0 24px" }}>
 
         {/* ── Header ── */}
         <div
@@ -480,7 +492,7 @@ export function Portfolio() {
         {loading && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Skeleton ratio="16/9" />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <div className="pf-skeleton-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
               <Skeleton ratio="3/4" />
               <Skeleton ratio="3/4" />
               <Skeleton ratio="3/4" />
@@ -512,7 +524,7 @@ export function Portfolio() {
 
             {/* Row 2: 3-column asymmetric (tall / short / tall) */}
             {(second || third) && (
-              <div style={{ display: "grid", gridTemplateColumns: "5fr 4fr 5fr", gap: 12 }}>
+              <div className="pf-row2" style={{ display: "grid", gridTemplateColumns: "5fr 4fr 5fr", gap: 12 }}>
                 {second && <ShowroomCard product={second} delay={80}  ratio="4/5" large />}
                 {third  && <ShowroomCard product={third}  delay={160} ratio="4/5" />}
                 {rest[0] && <ShowroomCard product={rest[0]} delay={240} ratio="4/5" large />}
@@ -521,7 +533,7 @@ export function Portfolio() {
 
             {/* Row 3: 2-column wide landscape */}
             {rest.slice(1).length > 0 && (
-              <div style={{
+              <div className="pf-row3" style={{
                 display: "grid",
                 gridTemplateColumns: rest.slice(1).length === 1 ? "1fr" : "3fr 2fr",
                 gap: 12,

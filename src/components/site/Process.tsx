@@ -192,7 +192,7 @@ export function Process() {
       style={{
         position: "relative",
         overflow: "hidden",
-        padding: "100px 0 80px",
+        padding: "clamp(56px, 8vw, 100px) 0 clamp(48px, 6vw, 80px)",
         background: "#ffffff",
       }}
     >
@@ -332,8 +332,10 @@ export function Process() {
             paddingTop: 32,
             borderTop: "1px solid rgba(180,165,140,0.15)",
             display: "flex",
+            flexWrap: "wrap",
             alignItems: "center",
             justifyContent: "space-between",
+            gap: 16,
             opacity: visible ? 1 : 0,
             transition: "opacity 0.8s ease 0.6s",
           }}

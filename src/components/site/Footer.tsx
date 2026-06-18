@@ -136,6 +136,21 @@ export function Footer() {
       background: COLORS.bg,
       color: COLORS.text,
     }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .footer-wrap { padding: 0 20px !important; }
+          .footer-brand-row { padding: 48px 0 40px !important; }
+          .footer-cols { grid-template-columns: 1fr !important; gap: 0 !important; padding: 40px 0 48px !important; }
+          .footer-col-pad { padding-right: 0 !important; }
+          .footer-divider-line { display: none !important; }
+          .footer-col-spacing { margin-top: 36px !important; }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .footer-cols { grid-template-columns: 1fr 2px 1fr !important; }
+          .footer-divider-last { display: none !important; }
+          .footer-col-3 { display: none !important; }
+        }
+      `}</style>
 
       {/* ── Dot texture ── */}
       <div style={{
@@ -168,7 +183,7 @@ export function Footer() {
       {/* ════════════════════════════════════ */}
       {/*  MAIN BODY                          */}
       {/* ════════════════════════════════════ */}
-      <div style={{ maxWidth: "100%", margin: "0 auto", padding: "0 48px", position: "relative" }}>
+      <div className="footer-wrap" style={{ maxWidth: "100%", margin: "0 auto", padding: "0 48px", position: "relative" }}>
 
         {/* ── Top divider ── */}
         <div style={{
@@ -177,7 +192,7 @@ export function Footer() {
         }} />
 
         {/* ── Hero brand statement ── */}
-        <div style={{
+        <div className="footer-brand-row" style={{
           padding: "72px 0 64px",
           borderBottom: `1px solid ${COLORS.border}`,
           display: "flex",
@@ -257,7 +272,7 @@ export function Footer() {
         </div>
 
         {/* ── Navigation + Contact columns ── */}
-        <div style={{
+        <div className="footer-cols" style={{
           display: "grid",
           gridTemplateColumns: "1fr 2px 1fr 2px 1fr",
           gap: 0,
@@ -266,7 +281,7 @@ export function Footer() {
         }}>
 
           {/* Navigation */}
-          <div style={{ paddingRight: 48 }}>
+          <div className="footer-col-pad" style={{ paddingRight: 48 }}>
             <p style={{
               fontSize: 7, letterSpacing: "0.28em", textTransform: "uppercase",
               fontWeight: 700, color: COLORS.primary, opacity: 0.5,
@@ -282,10 +297,10 @@ export function Footer() {
           </div>
 
           {/* Divider */}
-          <div style={{ background: COLORS.border, margin: "0 40px" }} />
+          <div className="footer-divider-line" style={{ background: COLORS.border, margin: "0 40px" }} />
 
           {/* Contact */}
-          <div style={{ paddingRight: 48 }}>
+          <div className="footer-col-pad footer-col-spacing" style={{ paddingRight: 48 }}>
             <p style={{
               fontSize: 7, letterSpacing: "0.28em", textTransform: "uppercase",
               fontWeight: 700, color: COLORS.primary, opacity: 0.5,
@@ -301,10 +316,10 @@ export function Footer() {
           </div>
 
           {/* Divider */}
-          <div style={{ background: COLORS.border, margin: "0 40px" }} />
+          <div className="footer-divider-line footer-divider-last" style={{ background: COLORS.border, margin: "0 40px" }} />
 
           {/* Savoir-faire */}
-          <div>
+          <div className="footer-col-3 footer-col-spacing">
             <p style={{
               fontSize: 7, letterSpacing: "0.28em", textTransform: "uppercase",
               fontWeight: 700, color: COLORS.primary, opacity: 0.5,
