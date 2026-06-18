@@ -123,6 +123,22 @@
 
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .ppe-hero-content { padding: 0 20px 40px !important; }
+      .ppe-sticky-inner { flex-wrap: wrap !important; gap: 10px !important; padding: 12px 16px !important; }
+      .ppe-sticky-left  { width: 100% !important; }
+      .ppe-sticky-right { width: 100% !important; justify-content: flex-end !important; }
+      .ppe-search       { width: 120px !important; }
+      .ppe-main         { padding: 0 16px 64px !important; }
+      .ppe-col-header   { flex-wrap: wrap !important; gap: 12px !important; }
+      .ppe-col-chevrons { display: none !important; }
+    }
+    @media (max-width: 480px) {
+      .ppe-search { display: none !important; }
+      .ppe-sort   { display: none !important; }
+    }
   `;
 
   function GlobalStyles() {
@@ -201,7 +217,7 @@
         }} />
 
         {/* Content */}
-        <div style={{
+        <div className="ppe-hero-content" style={{
           position: "absolute", inset: 0,
           display: "flex", flexDirection: "column", justifyContent: "flex-end",
           padding: "0 6vw 7vh",
@@ -539,7 +555,7 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
     return (
       <div ref={fadeRef} className="ppe-fade-up" style={{ marginBottom: 72 }}>
         {/* Section header */}
-        <div style={{
+        <div className="ppe-col-header" style={{
           display: "flex", alignItems: "flex-end", justifyContent: "space-between",
           marginBottom: 28, paddingBottom: 16,
           borderBottom: `1px solid ${T.border}`,
@@ -557,7 +573,7 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
               </p>
             )}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="ppe-col-chevrons" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {ctaLabel && (
               <button
                 onClick={onCta}
@@ -695,14 +711,14 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
         borderBottom: `1px solid ${T.border}`,
         marginBottom: 0,
       }}>
-        <div style={{
+        <div className="ppe-sticky-inner" style={{
           maxWidth: 1280, margin: "0 auto",
           padding: "14px 24px",
           display: "flex", alignItems: "center", gap: 16,
           justifyContent: "space-between",
         }}>
           {/* Left: title + count */}
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexShrink: 0 }}>
+          <div className="ppe-sticky-left" style={{ display: "flex", alignItems: "baseline", gap: 12, flexShrink: 0 }}>
             <h2 style={{
               fontFamily: T.fontDisplay, fontSize: 22, fontWeight: 400,
               color: T.ink, letterSpacing: "-0.01em",
@@ -715,9 +731,9 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
           </div>
 
           {/* Right: controls */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="ppe-sticky-right" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {/* Search */}
-            <div style={{ position: "relative" }}>
+            <div className="ppe-search" style={{ position: "relative" }}>
               <Search size={13} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: T.inkLight, pointerEvents: "none" }} />
               <input
                 type="text"
@@ -746,6 +762,7 @@ function EditorialCard({ product: p, size = "normal" }: CardProps) {
 
             {/* Sort */}
             <select
+              className="ppe-sort"
               value={sort}
               onChange={e => onSort(e.target.value)}
               style={{
@@ -1287,7 +1304,8 @@ const goPage = (n: number) => {
 
         {/* ── MAIN CONTENT ── */}
      <div
-  ref={collectionRef}  
+  ref={collectionRef}
+  className="ppe-main"
   style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px 96px" }}
 >
 

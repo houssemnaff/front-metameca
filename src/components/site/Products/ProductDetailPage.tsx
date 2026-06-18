@@ -79,6 +79,17 @@ const GLOBAL_CSS = `
 
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+
+  @media (max-width: 768px) {
+    .pdp-split      { grid-template-columns: 1fr !important; }
+    .pdp-gallery    { height: 60vw !important; min-height: 260px !important; max-height: 420px !important; }
+    .pdp-info-wrap  { padding: 40px 20px 60px !important; }
+    .pdp-form-2col  { grid-template-columns: 1fr !important; }
+    .pdp-modal-body { padding: 24px 20px !important; }
+  }
+  @media (max-width: 480px) {
+    .pdp-gallery { height: 72vw !important; }
+  }
 `;
 
 function GlobalStyles() {
@@ -132,7 +143,7 @@ function HeroGallery({ images, activeIdx, onThumbClick, onLightbox }: HeroGaller
   );
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "80vh", overflow: "hidden", background: T.parchment }}>
+    <div className="pdp-gallery" style={{ position: "relative", width: "100%", height: "80vh", overflow: "hidden", background: T.parchment }}>
       {images.map((img, i) => (
         <img
           key={img.url}
@@ -410,7 +421,7 @@ function StorySection({ eyebrow, headline, body, imageUrl, flip = false, accent 
   return (
     <section
       ref={ref}
-      className="pdp-reveal"
+      className="pdp-reveal pdp-split"
       style={{
         display: "grid",
         gridTemplateColumns: imageUrl ? (flip ? "1fr 1.1fr" : "1.1fr 1fr") : "1fr",
@@ -811,7 +822,7 @@ function ReservationModal({ product: p, qty, onClose }: { product: Product; qty:
             <div style={{ width: 28, height: 28, border: `2px solid ${T.border}`, borderTopColor: T.inkMid, borderRadius: "50%", animation: "pdpSpin 0.8s linear infinite" }} />
           </div>
         ) : (
-          <form onSubmit={handleSubmit} style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 18 }}>
+          <form onSubmit={handleSubmit} className="pdp-modal-body" style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 18 }}>
 
             {/* ── Bandeau compte connecté (remplace les 3 champs identité) ── */}
             {isLoggedIn ? (
@@ -837,7 +848,7 @@ function ReservationModal({ product: p, qty, onClose }: { product: Product; qty:
                   <label style={lbl}><User size={10} /> Nom complet *</label>
                   <input style={inp} placeholder="Votre nom" value={form.clientName} onChange={e => setForm({ ...form, clientName: e.target.value })} required />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div className="pdp-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                     <label style={lbl}><Mail size={10} /> Email *</label>
                     <input style={inp} type="email" placeholder="vous@email.com" value={form.clientEmail} onChange={e => setForm({ ...form, clientEmail: e.target.value })} required />
@@ -851,7 +862,7 @@ function ReservationModal({ product: p, qty, onClose }: { product: Product; qty:
             )}
 
             {/* Quantité + Date — toujours visibles */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div className="pdp-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                 <label style={lbl}>Quantité</label>
                 <input style={inp} type="number" min={1} max={Number(p.stock) || 999} value={form.quantity} onChange={e => setForm({ ...form, quantity: Math.max(1, Number(e.target.value)) })} />
@@ -1015,7 +1026,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ══ VARIANTS + DESCRIPTION ══ */}
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 32px 56px" }}>
+      <div className="pdp-info-wrap" style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 32px 56px" }}>
         <VariantStrip
           variants={variants}
           currentId={product._id}
