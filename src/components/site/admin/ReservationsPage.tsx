@@ -225,9 +225,26 @@ const isOverdue = (date?: string) => {
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div style={{ animation: "fadeIn .3s ease", fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+      <style>{`
+        .rp-header { flex-wrap: wrap !important; gap: 12px !important; }
+        .rp-kpi { flex-wrap: wrap !important; }
+        .rp-filters { flex-wrap: wrap !important; }
+        .rp-search { max-width: 100% !important; width: 100% !important; }
+        @media (max-width: 640px) {
+          .rp-header button { width: 100%; justify-content: center; }
+          .rp-kpi > * { flex: 1 1 calc(50% - 6px); min-width: 130px; }
+          .rp-table-wrap { overflow-x: auto !important; }
+        }
+        @media (max-width: 420px) {
+          .rp-kpi > * { flex: 1 1 100%; }
+        }
+        @media (max-width: 480px) {
+          .modal-grid-2 { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       {/* Header */}
-      <div style={S.header}>
+      <div className="rp-header" style={S.header}>
         <div>
           <h1 style={S.title}>Réservations</h1>
           <p style={S.sub}>Gérez et suivez toutes vos réservations</p>
@@ -238,7 +255,7 @@ const isOverdue = (date?: string) => {
       </div>
 
       {/* KPI bar */}
-      <div style={S.kpiBar}>
+      <div className="rp-kpi" style={S.kpiBar}>
         <KpiCard icon={<CalendarCheck size={16} color="#6366f1" />} label="Total" value={total} accent="#6366f1" bg="rgba(99,102,241,0.08)" />
         <KpiCard icon={<Clock size={16} color="#d97706" />}         label="En attente" value={pending} accent="#d97706" bg="rgba(245,158,11,0.08)" />
         <KpiCard icon={<CheckCircle2 size={16} color="#059669" />}  label="Confirmées" value={confirmed} accent="#059669" bg="rgba(16,185,129,0.08)" />
@@ -253,7 +270,7 @@ const isOverdue = (date?: string) => {
       </div>
 
       {/* Filters */}
-      <div style={S.filtersRow}>
+      <div className="rp-filters" style={S.filtersRow}>
         <div style={S.searchWrap}>
           <Search size={15} color="#9ca3af" />
           <input
@@ -284,7 +301,7 @@ const isOverdue = (date?: string) => {
       </div>
 
       {/* Table */}
-      <div style={S.tableWrap}>
+      <div className="rp-table-wrap" style={{ ...S.tableWrap, overflowX: "auto" }}>
         <table style={S.table}>
           <thead>
             <tr>
@@ -490,7 +507,7 @@ const isOverdue = (date?: string) => {
               </select>
             </FormField>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="modal-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <FormField label="Quantité" required>
                 <input
                   style={inp}

@@ -57,7 +57,7 @@ export const styles: Record<string, React.CSSProperties> = {
 };
 
 export const mStyles: Record<string, React.CSSProperties> = {
-  overlay:  { position: "fixed", inset: 0, background: "rgba(15,23,42,0.5)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 },
+  overlay:  { position: "fixed", inset: 0, background: "rgba(15,23,42,0.5)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: "16px" },
   modal:    { background: "#fff", border: "1px solid #e8edf4", borderRadius: 20, width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", animation: "fadeIn .2s ease", boxShadow: "0 24px 64px rgba(0,0,0,.18)" },
   mHeader:  { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" },
   mTitle:   { fontSize: 18, fontWeight: 700, color: "#0f172a" },
@@ -65,8 +65,8 @@ export const mStyles: Record<string, React.CSSProperties> = {
 };
 
 export const dStyles: Record<string, React.CSSProperties> = {
-  modal:         { background: "#fff", border: "1px solid #e8edf4", borderRadius: 22, width: "100%", maxWidth: 860, maxHeight: "90vh", overflowY: "auto", display: "flex", flexDirection: "row", animation: "fadeIn .22s ease", boxShadow: "0 32px 80px rgba(0,0,0,.2)" },
-  imgPanel:      { width: 360, minWidth: 280, flexShrink: 0, background: "#f8fafc", borderRight: "1px solid #f1f5f9", borderRadius: "22px 0 0 22px", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" },
+  modal:         { background: "#fff", border: "1px solid #e8edf4", borderRadius: 22, width: "100%", maxWidth: 860, maxHeight: "90vh", overflowY: "auto", display: "flex", flexDirection: "row", flexWrap: "wrap", animation: "fadeIn .22s ease", boxShadow: "0 32px 80px rgba(0,0,0,.2)" },
+  imgPanel:      { width: 360, minWidth: 0, flexShrink: 0, flexBasis: "360px", background: "#f8fafc", borderRight: "1px solid #f1f5f9", borderRadius: "22px 0 0 22px", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" },
   mainImg:       { width: "100%", height: 300, objectFit: "cover", display: "block" },
   noImg:         { height: 300, display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9" },
   navBtn:        { position: "absolute", top: 132, background: "rgba(255,255,255,.9)", border: "1px solid #e8edf4", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#475569", zIndex: 2, boxShadow: "0 2px 8px rgba(0,0,0,.08)" },

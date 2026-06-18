@@ -134,10 +134,15 @@ export default function AdminProductsPage() {
         .action-btn:hover { background:#f1f5f9 !important; }
         .clear-search:hover { color:#0f172a; }
         .toggle-filter:hover { background:#f1f5f9 !important; }
+        @media (max-width: 640px) {
+          .prod-header { flex-wrap: wrap !important; gap: 12px !important; }
+          .prod-header button { width: 100%; justify-content: center; }
+          .prod-search { max-width: 100% !important; flex: 1 1 100% !important; }
+        }
       `}</style>
 
       {/* ── Header ── */}
-      <div style={S.header}>
+      <div className="prod-header" style={S.header}>
         <div>
           <p style={S.headerSub}>Catalogue</p>
           <h1 style={S.headerTitle}>Produits</h1>

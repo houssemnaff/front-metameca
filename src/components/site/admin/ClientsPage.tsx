@@ -144,9 +144,22 @@ export default function ClientsPage() {
 
   return (
     <div style={{ animation: "fadeIn .3s ease", fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+      <style>{`
+        .cp-header { flex-wrap: wrap !important; gap: 12px !important; }
+        .cp-kpi { flex-wrap: wrap !important; }
+        .cp-search { max-width: 100% !important; }
+        @media (max-width: 640px) {
+          .cp-header button { width: 100%; justify-content: center; }
+          .cp-kpi > * { flex: 1 1 calc(50% - 6px); }
+          .cp-table-wrap { overflow-x: auto !important; }
+        }
+        @media (max-width: 480px) {
+          .modal-grid-2 { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       {/* ── Page header ──────────────────────────────────────────────────── */}
-      <div style={S.header}>
+      <div className="cp-header" style={S.header}>
         <div>
           <h1 style={S.title}>Clients</h1>
           <p style={S.sub}>Gérez votre base clients et leurs réservations</p>
@@ -158,7 +171,7 @@ export default function ClientsPage() {
       </div>
 
       {/* ── KPI Summary bar ───────────────────────────────────────────────── */}
-      <div style={S.kpiBar}>
+      <div className="cp-kpi" style={S.kpiBar}>
         <KpiCard
           icon={<Users size={16} color="#6366f1" />}
           label="Total clients"
@@ -193,7 +206,7 @@ export default function ClientsPage() {
       </div>
 
       {/* ── Table ────────────────────────────────────────────────────────── */}
-      <div style={S.tableWrap}>
+      <div className="cp-table-wrap" style={{ ...S.tableWrap, overflowX: "auto" }}>
         <table style={S.table}>
           <thead>
             <tr>
@@ -630,7 +643,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Row({ children }: { children: React.ReactNode }) {
-  return <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>{children}</div>;
+  return <div className="modal-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>{children}</div>;
 }
 
 const inp: React.CSSProperties = {

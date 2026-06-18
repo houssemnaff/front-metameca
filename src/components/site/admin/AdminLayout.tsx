@@ -36,6 +36,22 @@ export default function AdminLayout() {
   const navigate  = useNavigate();
   const location  = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Close mobile sidebar on route change
+  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
+  const handleMenuToggle = () => {
+    if (isMobile) setMobileOpen(o => !o);
+    else setCollapsed(c => !c);
+  };
 
   const handleLogout = () => { logout(); navigate("/login"); };
 
@@ -86,8 +102,19 @@ export default function AdminLayout() {
     <div style={S.root}>
       <style>{CSS}</style>
 
+      {/* Mobile backdrop */}
+      {isMobile && mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 30, backdropFilter: "blur(2px)" }}
+        />
+      )}
+
       {/* ══════════════════ SIDEBAR ══════════════════ */}
-      <aside style={{ ...S.sidebar, width: collapsed ? 68 : 240 }}>
+      <aside style={isMobile
+        ? { ...S.sidebar, width: 240, position: "fixed", top: 0, bottom: 0, left: 0, transform: mobileOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform .25s cubic-bezier(.4,0,.2,1)", zIndex: 40 }
+        : { ...S.sidebar, width: collapsed ? 68 : 240 }
+      }>
 
         {/* Brand */}
         <div style={S.brand}>
@@ -183,12 +210,12 @@ export default function AdminLayout() {
         <header style={S.topbar}>
           <div style={S.topbarLeft}>
             {/* Collapse toggle */}
-            <button className="topbar-btn" onClick={() => setCollapsed(c => !c)} style={S.topbarBtn} title="Toggle sidebar">
+            <button className="topbar-btn" onClick={handleMenuToggle} style={S.topbarBtn} title="Toggle sidebar">
               <Menu size={18} />
             </button>
 
             {/* Breadcrumb */}
-            <div style={S.breadcrumb}>
+            <div className="admin-topbar-breadcrumb" style={S.breadcrumb}>
               <span style={S.breadcrumbRoot}>Admin</span>
               <ChevronRight size={13} color="#000000" />
               <span style={S.breadcrumbPage}>{pageTitle}</span>
@@ -212,7 +239,7 @@ export default function AdminLayout() {
 
               {/* Dropdown */}
               {bellOpen && (
-                <div style={S.notifDropdown}>
+                <div className="notif-dropdown-panel" style={S.notifDropdown}>
                   {/* Header */}
                   <div style={S.notifHeader}>
                     <span style={S.notifTitle}>Notifications</span>
@@ -276,10 +303,10 @@ export default function AdminLayout() {
             </div>
 
             {/* Divider */}
-            <div style={{ width: 1, height: 22, background: "#e8edf4", margin: "0 4px" }} />
+            <div className="topbar-right-divider" style={{ width: 1, height: 22, background: "#e8edf4", margin: "0 4px" }} />
 
             {/* User chip */}
-            <div style={S.topbarUser}>
+            <div className="topbar-user-chip" style={S.topbarUser}>
               <div style={S.topbarAvatar}>{initials}</div>
               <div style={{ lineHeight: 1.2 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{admin?.name ?? "Admin"}</div>
@@ -334,6 +361,15 @@ const CSS = `
     display:flex; align-items:center; padding:4px; border-radius:6px; flex-shrink:0;
     transition:background .12s, color .12s; margin-top:2px; }
   .notif-read-btn:hover { background:#eef2ff; border-color:#c7d2fe; color:#6366f1; }
+
+  @media (max-width: 767px) {
+    .topbar-user-chip { display: none !important; }
+    .topbar-right-divider { display: none !important; }
+    .notif-dropdown-panel { width: calc(100vw - 24px) !important; right: -60px !important; }
+  }
+  @media (max-width: 480px) {
+    .admin-topbar-breadcrumb { display: none !important; }
+  }
 `;
 
 /* ─── Styles ─────────────────────────────────────────────────────────── */

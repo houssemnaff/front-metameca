@@ -45,7 +45,7 @@ export default function DashboardPage() {
   if (loading) return <Skeleton />;
 
   const total = stats?.total || 1;
-  const completionRate = Math.round(((stats?.completed ?? 0) / total) * 100);
+  
 
   const kpis: KPI[] = [
     { label: "Produits",       value: productCount,                                    icon: Package,       color: "#6366f1", bg: "#eef2ff", path: "/admin/products" },
@@ -62,22 +62,22 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div style={S.page}>
+    <div className="dash-page" style={S.page}>
       <style>{CSS}</style>
 
       {/* ── Header ─────────────────────────────────────────────────── */}
-      <div style={S.header}>
+      <div className="dash-header" style={S.header}>
         <div>
           <p style={S.headerSub}>Vue d'ensemble</p>
           <h1 style={S.headerTitle}>Tableau de bord</h1>
         </div>
-        <div style={S.headerDate}>
+        <div className="dash-header-date" style={S.headerDate}>
           {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </div>
       </div>
 
       {/* ── KPI row ────────────────────────────────────────────────── */}
-      <div style={S.kpiGrid}>
+      <div className="dash-kpi" style={S.kpiGrid}>
         {kpis.map(({ label, value, icon: Icon, color, bg, path }) => (
           <div key={label} className="kpi" onClick={() => navigate(path)} style={S.kpiCard}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Body: table + sidebar ──────────────────────────────────── */}
-      <div style={S.body}>
+      <div className="dash-body" style={S.body}>
 
         {/* Recent reservations */}
         <div style={S.tableCard}>
@@ -155,30 +155,7 @@ export default function DashboardPage() {
         <div style={S.sidebar}>
 
           {/* Completion gauge */}
-          <div style={S.sideCard}>
-            <div style={S.cardTitle}>
-              <BarChart2 size={15} color="#6366f1" />
-              Taux de complétion
-            </div>
-            <div style={S.gaugeWrap}>
-              <svg viewBox="0 0 120 70" style={{ width: "100%", overflow: "visible" }}>
-                <path d="M10,70 A60,60 0 0,1 110,70" fill="none" stroke="#f1f5f9" strokeWidth="12" strokeLinecap="round" />
-                <path
-                  d="M10,70 A60,60 0 0,1 110,70"
-                  fill="none"
-                  stroke="#6366f1"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeDasharray={`${completionRate * 1.57} 157`}
-                  style={{ transition: "stroke-dasharray 1s ease" }}
-                />
-              </svg>
-              <div style={S.gaugeLabel}>
-                <span style={{ fontSize: 28, fontWeight: 800, color: "#0f172a" }}>{completionRate}%</span>
-                <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>des réservations</span>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Status breakdown */}
           <div style={S.sideCard}>
@@ -285,12 +262,29 @@ const CSS = `
   .trow:hover td { background: #f0f4ff !important; }
   .view-btn:hover { background: #eef2ff !important; color: #4f46e5 !important; }
   .nav-btn:hover { background: #f8faff !important; border-color: #c7d2fe !important; }
+
+  .dash-page { padding: 32px 28px !important; }
+  .dash-header { flex-wrap: wrap; gap: 8px; }
+  .dash-body { grid-template-columns: 1fr 300px; }
+  .dash-kpi { grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); }
+
+  @media (max-width: 1024px) {
+    .dash-body { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 640px) {
+    .dash-page { padding: 20px 14px !important; }
+    .dash-kpi { grid-template-columns: repeat(2, 1fr) !important; }
+    .dash-header-date { display: none !important; }
+  }
+  @media (max-width: 380px) {
+    .dash-kpi { grid-template-columns: 1fr !important; }
+  }
 `;
 
 const S: Record<string, React.CSSProperties> = {
   page: {
     fontFamily: "'Inter', 'Segoe UI', sans-serif",
-    background: "#f4f6fb",
+    background: "#ffffff",
     minHeight: "100vh",
     padding: "32px 28px",
   },
