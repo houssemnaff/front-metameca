@@ -82,13 +82,46 @@ const GLOBAL_CSS = `
 
   @media (max-width: 768px) {
     .pdp-split      { grid-template-columns: 1fr !important; }
-    .pdp-gallery    { height: 60vw !important; min-height: 260px !important; max-height: 420px !important; }
-    .pdp-info-wrap  { padding: 40px 20px 60px !important; }
+    .pdp-gallery    { height: 72vw !important; min-height: 260px !important; max-height: 480px !important; }
+    .pdp-info-wrap  { padding: 32px 20px 48px !important; }
     .pdp-form-2col  { grid-template-columns: 1fr !important; }
     .pdp-modal-body { padding: 24px 20px !important; }
+
+    /* Pull FloatingInfo out of absolute overlay → flow below gallery */
+    .pdp-hero-wrap  { display: flex !important; flex-direction: column !important; }
+    .pdp-floating   {
+      position: static !important;
+      transform: none !important;
+      width: 100% !important;
+      right: auto !important;
+      top: auto !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-radius: 0 !important;
+      box-sizing: border-box !important;
+      animation: none !important;
+    }
+
+    /* Breadcrumb: keep inside hero but readable */
+    .pdp-breadcrumb { top: 16px !important; padding: 0 16px !important; }
+
+    /* Specs grid single col */
+    .pdp-specs-grid { grid-template-columns: 1fr !important; }
+
+    /* Service items grid */
+    .pdp-service-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+
+    /* Section padding */
+    .pdp-section-pad { padding: 48px 20px !important; }
+
+    /* Sticky bar */
+    .pdp-sticky-bar   { padding: 12px 16px !important; }
+    .pdp-sticky-inner { gap: 12px !important; }
+    .pdp-sticky-qty   { display: none !important; }
   }
   @media (max-width: 480px) {
-    .pdp-gallery { height: 72vw !important; }
+    .pdp-service-grid { grid-template-columns: 1fr !important; }
+    .pdp-floating { padding: 20px 16px !important; }
   }
 `;
 
@@ -254,7 +287,7 @@ function FloatingInfo({ product: p, wishlist, onWishlist, copied, onShare, onRes
   const lowStock = !outOfStock && stockNum > 0 && stockNum < 5;
 
   return (
-    <div style={{
+    <div className="pdp-floating" style={{
       position: "absolute",
       right: 48,
       top: "50%",
@@ -431,7 +464,7 @@ function StorySection({ eyebrow, headline, body, imageUrl, flip = false, accent 
         marginBottom: 2,
       }}
     >
-      <div style={{
+      <div className="pdp-section-pad" style={{
         order: flip ? 2 : 1,
         display: "flex", flexDirection: "column", justifyContent: "center",
         padding: "72px clamp(32px, 6vw, 80px)",
@@ -495,7 +528,7 @@ function SpecsSection({ rows }: SpecsProps) {
   return (
     <section
       ref={ref}
-      className="pdp-reveal"
+      className="pdp-reveal pdp-section-pad"
       style={{ background: T.parchment, padding: "80px clamp(24px, 8vw, 120px)", marginBottom: 2 }}
     >
       <p style={{ fontFamily: T.fontUI, fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: T.inkLight, marginBottom: 16 }}>
@@ -534,7 +567,7 @@ function TrustSection() {
   return (
     <section
       ref={ref}
-      className="pdp-reveal"
+      className="pdp-reveal pdp-section-pad"
       style={{ background: T.ink, padding: "80px clamp(24px, 8vw, 120px)", marginBottom: 2 }}
     >
       <p style={{ fontFamily: T.fontUI, fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>
@@ -543,7 +576,7 @@ function TrustSection() {
       <h2 style={{ fontFamily: T.fontDisplay, fontSize: "clamp(28px, 3.5vw, 46px)", fontWeight: 400, fontStyle: "italic", color: "#fff", marginBottom: 56, lineHeight: 1.1 }}>
         Livré avec intention
       </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 48 }}>
+      <div className="pdp-service-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 48 }}>
         {items.map(({ icon: Icon, label, sub, detail }) => (
           <div key={label}>
             <Icon size={22} style={{ color: "rgba(255,255,255,0.4)", marginBottom: 20 }} />
@@ -571,7 +604,7 @@ interface StickyBarProps {
 
 function StickyReserveBar({ product: p, qty, onQtyChange, onReserve, outOfStock, visible }: StickyBarProps) {
   return (
-    <div style={{
+    <div className="pdp-sticky-bar" style={{
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
       background: "rgba(250,249,246,0.92)",
       backdropFilter: "blur(20px) saturate(1.5)",
@@ -581,7 +614,7 @@ function StickyReserveBar({ product: p, qty, onQtyChange, onReserve, outOfStock,
       transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)",
       padding: "14px 32px",
     }}>
-      <div style={{
+      <div className="pdp-sticky-inner" style={{
         maxWidth: 1280, margin: "0 auto",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24,
       }}>
@@ -598,7 +631,7 @@ function StickyReserveBar({ product: p, qty, onQtyChange, onReserve, outOfStock,
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", border: `1px solid ${T.border}` }}>
+          <div className="pdp-sticky-qty" style={{ display: "flex", alignItems: "center", border: `1px solid ${T.border}` }}>
             <button
               onClick={() => onQtyChange(Math.max(1, qty - 1))}
               style={{ width: 36, height: 38, background: "none", border: "none", cursor: "pointer", fontSize: 16, color: T.inkMid, display: "flex", alignItems: "center", justifyContent: "center" }}
@@ -995,7 +1028,7 @@ export default function ProductDetailPage() {
       <ToastContainer />
 
       {/* ── BREADCRUMB ── */}
-      <div style={{
+      <div className="pdp-breadcrumb" style={{
         position: "absolute", top: 84, left: 0, right: 0, zIndex: 20,
         padding: "0 32px",
       }}>
@@ -1008,7 +1041,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ══ HERO ══ */}
-      <div style={{ position: "relative", marginTop: 0 }}>
+      <div className="pdp-hero-wrap" style={{ position: "relative", marginTop: 0 }}>
         <HeroGallery
           images={images}
           activeIdx={activeImg}
@@ -1073,7 +1106,7 @@ export default function ProductDetailPage() {
         { label: "Colis",      value: "2 cartons" },
       ]} />
 
-      <div style={{ background: T.parchment, padding: "0 clamp(24px, 8vw, 120px) 60px" }}>
+      <div className="pdp-section-pad" style={{ background: T.parchment, padding: "0 clamp(24px, 8vw, 120px) 60px" }}>
         <button
           onClick={() => setBulkyOpen(true)}
           style={{
