@@ -1,8 +1,8 @@
-  import type { AuthUser, Client, Product, Reservation, ReservationStats } from "../types";
+  import type { AppNotification, AuthUser, Client, Product, Reservation, ReservationStats } from "../types";
 
   /* ─── Base & token ───────────────────────────────────────────────────────── */
 
-  const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+  const BASE = import.meta.env.VITE_API_URL ;
 
   const getToken = (): string | null => {
     const token = localStorage.getItem("mm_token");
