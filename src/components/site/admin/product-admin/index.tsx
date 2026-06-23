@@ -9,7 +9,7 @@ import { defaultCategories, emptyForm, generateRef } from "./constants";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 import { ProductFormModal } from "./components/ProductFormModal";
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+const BASE = import.meta.env.VITE_API_URL ;
 
 export default function AdminProductsPage() {
   const [products, setProducts]           = useState<Product[]>([]);
@@ -126,7 +126,7 @@ export default function AdminProductsPage() {
         .filter-select  { appearance:none; background:#fff; border:1px solid #e8edf4; border-radius:9px;
                           padding:9px 36px 9px 14px; font-size:13px; color:#475569; font-weight:500;
                           cursor:pointer; outline:none; font-family:'Inter',sans-serif;
-                          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+                          background-image:url("data:image/svg+xml,%3Csvg xmlns='https://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
                           background-repeat:no-repeat; background-position: right 10px center;
                           transition: border-color .15s; }
         .filter-select:hover { border-color:#6366f1; }

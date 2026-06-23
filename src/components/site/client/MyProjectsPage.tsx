@@ -31,7 +31,7 @@ export default function MyProjectsPage() {
   useEffect(() => {
     if (!user) return;
     const token = localStorage.getItem("mm_token");
-    const base = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+    const base = import.meta.env.VITE_API_URL ;
     fetch(`${base}/projects?clientId=${user.id}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
