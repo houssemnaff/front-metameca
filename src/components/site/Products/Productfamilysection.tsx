@@ -212,7 +212,8 @@ export default function ProductFamilySection({ family, currentProductId }: Props
     if (!family) return;
     setLoading(true);
 
-    fetch(`http://localhost:4000/api/products?family=${encodeURIComponent(family)}`)
+    const base = import.meta.env.VITE_API_URL ;
+    fetch(`${base}/products?family=${encodeURIComponent(family)}`)
       .then(r => r.json())
       .then((data: FamilyProduct[]) => {
         const active = Array.isArray(data)

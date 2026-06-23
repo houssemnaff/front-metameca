@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+const API_BASE = (import.meta.env.VITE_API_URL ).replace(/\/api$/, "");
 import {
   Plus, Trash2, Search, X, CalendarCheck, User, Package,
   ChevronDown, FileText, Upload, Eye, Clock, CheckCircle2,
@@ -801,7 +802,7 @@ function FileRow({ file, onDelete }: { file: ReservationFile; onDelete: () => vo
     }}>
       {isImage ? (
         <img
-          src={`http://localhost:4000${file.url}`}
+          src={`${API_BASE}${file.url}`}
           alt={file.originalName}
           style={{ width: 38, height: 38, borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
         />
@@ -828,7 +829,7 @@ function FileRow({ file, onDelete }: { file: ReservationFile; onDelete: () => vo
         </div>
       </div>
       <a
-        href={`http://localhost:4000${file.url}`}
+        href={`${API_BASE}${file.url}`}
         target="_blank"
         rel="noreferrer"
         style={{
